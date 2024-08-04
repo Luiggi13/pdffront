@@ -31,19 +31,21 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <div class="voter">
-    <div class="inline-flex bg-blue-500 p-1 rounded-full">
-      <button :disabled="isDisabledUp"
-        class="bg-blue-300 hover:bg-blue-200 text-white hover:text-blue-500 font-bold py-2 px-4 rounded-3xl disabled:bg-gray-300"
-        @click="voteUp">
-        {{ isDisabledUp ? '🚫' : '👍🏻' }}
-      </button>
-      <span class="text-white font-bold py-2 px-4 rounded-r w-14 text-center">
-        {{ votos }}</span>
-      <button class="bg-blue-300 hover:bg-blue-200 text-white hover:text-blue-500 font-bold py-2 px-4 rounded-3xl"
-        @click="voteDown">
-        {{ !isDisabledUp ? '🚫' : '👎🏻' }}
-      </button>
+  <div class="relative md:ml-64 bg-blueGray-100">
+    <div class="voter">
+      <div class="inline-flex bg-blue-500 p-1 rounded-full">
+        <button :disabled="isDisabledUp"
+          class="bg-blue-300 hover:bg-blue-200 text-white hover:text-blue-500 font-bold py-2 px-4 rounded-3xl disabled:bg-gray-300"
+          @click="voteUp">
+          {{ isDisabledUp ? '🚫' : '👍🏻' }}
+        </button>
+        <span class="text-white font-bold py-2 px-4 rounded-r w-14 text-center">
+          {{ votos }}</span>
+        <button class="bg-blue-300 hover:bg-blue-200 text-white hover:text-blue-500 font-bold py-2 px-4 rounded-3xl"
+          @click="voteDown">
+          {{ !isDisabledUp ? '🚫' : '👎🏻' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>

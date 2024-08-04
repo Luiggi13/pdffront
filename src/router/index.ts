@@ -3,6 +3,8 @@ import SignIn from '@/layouts/SignIn.vue';
 import Inside from '@/layouts/Inside.vue';
 import Dashboard from '@/layouts/Dashboard.vue';
 import RestaurantLayout from '@/layouts/RestaurantLayout.vue';
+import Restaurants from '@/components/atoms/restaurants/Restaurants.vue';
+import AddRestaurants from '@/components/atoms/restaurants/AddRestaurants.vue';
 
 export const menusApp: RouteRecordRaw[] = [
   {
@@ -23,11 +25,17 @@ export const menusApp: RouteRecordRaw[] = [
   },
   {
     path: '/restaurants',
+    component: RestaurantLayout,
     children: [
       {
         path: '',
         name: 'restaurants',
-        component: RestaurantLayout,
+        component: Restaurants,
+      },
+      {
+        path: '/add',
+        name: 'add-resaturant',
+        component: AddRestaurants,
       },
     ],
   },
