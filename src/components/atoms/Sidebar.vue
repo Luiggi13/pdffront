@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
-import UserDropdown from '@/components/atoms/UserDropdown.vue';
 import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { onBeforeMount } from 'vue';
 
 const props = defineProps<{
   username: string;
@@ -15,6 +16,17 @@ const toggleCollapseShow = (classes: string) => {
   collapseShow.value = classes;
 }
 const currentYear = computed(() => new Date().getFullYear())
+
+const currentRoute = ref('')
+const route = useRoute();
+const calcCurrentRoute = () => currentRoute.value = route.path
+const isActive = (myroute: string) => {
+  return currentRoute.value === myroute.toLocaleLowerCase()
+}
+
+onBeforeMount(() => {
+  calcCurrentRoute();
+});
 </script>
 <template>
   <nav
@@ -32,12 +44,6 @@ const currentYear = computed(() => new Date().getFullYear())
         href="javascript:void(0)">
         Christmas Dinner {{ currentYear }}
       </a>
-      <!-- User -->
-      <ul class="md:hidden items-center flex flex-wrap list-none">
-        <li class="inline-block relative">
-          <UserDropdown :username="props.username" />
-        </li>
-      </ul>
       <!-- Collapse -->
       <div
         class="md:flex md:flex-col md:items-stretch md:opacity-100 md:relative md:mt-4 md:shadow-none shadow absolute top-0 left-0 right-0 z-40 overflow-y-auto overflow-x-hidden h-auto items-center flex-1 rounded"
@@ -63,74 +69,25 @@ const currentYear = computed(() => new Date().getFullYear())
         <!-- Navigation -->
         <ul class="md:flex-col md:min-w-full flex flex-col list-none">
           <li class="items-center">
-            <a class="text-green-500 hover:text-green-600 text-xs uppercase py-3 font-bold block" href="#/dashboard"><i
+            <a :class="{ 'text-green-500': isActive('/dashboard') }"
+              class="hover:text-green-600 text-xs uppercase py-3 font-bold block"><i
                 class="fas fa-tv opacity-75 mr-2 text-sm"></i>
-              Dashboard</a>
+              <router-link to="/dashboard">Dashboard</router-link>
+            </a>
           </li>
           <li class="items-center">
-            <a class="text-blueGray-700 hover:text-blueGray-500 text-xs uppercase py-3 font-bold block"
-              href="#/landing"><i class="fas fa-newspaper text-blueGray-400 mr-2 text-sm"></i>
-              Landing Page</a>
-          </li>
-          <li class="items-center">
-            <a class="text-blueGray-700 hover:text-blueGray-500 text-xs uppercase py-3 font-bold block"
-              href="#/profile"><i class="fas fa-user-circle text-blueGray-400 mr-2 text-sm"></i>
-              Profile Page</a>
-          </li>
-          <li class="items-center">
-            <a class="text-blueGray-700 hover:text-blueGray-500 text-xs uppercase py-3 font-bold block"
-              href="#/login"><i class="fas fa-fingerprint text-blueGray-400 mr-2 text-sm"></i>
-              Login</a>
-          </li>
-          <li class="items-center">
-            <a class="text-blueGray-300 text-xs uppercase py-3 font-bold block" href="#pablo"><i
-                class="fas fa-clipboard-list text-blueGray-300 mr-2 text-sm"></i>
-              Register (soon)</a>
-          </li>
-          <li class="items-center">
-            <a class="text-blueGray-300 text-xs uppercase py-3 font-bold block" href="#pablo"><i
-                class="fas fa-tools text-blueGray-300 mr-2 text-sm"></i>
-              Settings (soon)</a>
-          </li>
-        </ul>
-        <!-- Divider -->
-        <hr v-if="props.isPremium" class="my-4 md:min-w-full" />
-        <!-- Heading -->
-        <h6 v-if="props.isPremium"
-          class="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">
-          Documentation
-        </h6>
-        <!-- Navigation -->
-        <ul v-if="props.isPremium" class="md:flex-col md:min-w-full flex flex-col list-none md:mb-4">
-          <li class="inline-flex">
-            <a class="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
-              href="#/documentation/styles"><i class="fas fa-paint-brush mr-2 text-blueGray-400 text-base"></i>
-              Styles</a>
-          </li>
-          <li class="inline-flex">
-            <a class="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
-              href="#/documentation/alerts"><i class="fab fa-css3-alt mr-2 text-blueGray-400 text-base"></i>
-              CSS Components</a>
-          </li>
-          <li class="inline-flex">
-            <a class="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
-              href="#/documentation/vue/alerts"><i class="fab fa-vuejs mr-2 text-blueGray-400 text-base"></i>
-              VueJS</a>
-          </li>
-          <li class="inline-flex">
-            <a class="text-blueGray-700 hover:text-blueGray-500  text-sm block mb-4 no-underline font-semibold"
-              href="#/documentation/react/alerts"><i class="fab fa-react mr-2 text-blueGray-400 text-base"></i>
-              React</a>
-          </li>
-          <li class="inline-flex">
-            <a class="text-blueGray-700 hover:text-blueGray-500  text-sm block mb-4 no-underline font-semibold"
-              href="#/documentation/angular/alerts"><i class="fab fa-angular mr-2 text-blueGray-400 text-base"></i>
-              Angular</a>
-          </li>
-          <li class="inline-flex">
-            <a class="text-blueGray-700 hover:text-blueGray-500  text-sm block mb-4 no-underline font-semibold"
-              href="#/documentation/javascript/alerts"><i class="fab fa-js-square mr-2 text-blueGray-400 text-base"></i>
-              Javascript</a>
+            <a :class="{ 'text-green-500': isActive('/restaurants') }"
+              class="hover:text-green-600 text-xs uppercase py-3 font-bold block"><i
+                class="fas fa-newspaper text-blueGray-400 mr-2 text-sm"></i>
+              <router-link to="/restaurants">Restaurants</router-link></a>
+            <ul class="md:flex-col md:min-w-full flex flex-col list-none">
+              <li class="hover:text-green-600 text-xs py-1 block pl-5">
+                <router-link to="/add"><i class="fa-regular fa-plus pr-2"></i>Add restaurant</router-link>
+              </li>
+              <li class="hover:text-green-600 text-xs py-1 block pl-5">
+                <router-link to="/edit"><i class="fa-regular fa-pen-to-square pr-2"></i>Edit restaurant</router-link>
+              </li>
+            </ul>
           </li>
         </ul>
         <hr class="my-4 md:min-w-full" />
