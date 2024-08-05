@@ -2,12 +2,12 @@
 import { useAuthStore } from '@/stores/authStore';
 import { usePlacesStore } from '@/stores/placesStore';
 import Navbar from '@/components/atoms/Navbar.vue';
-import type { Restaurants, UpdateVote } from '@/types/restaurants.types';
+import type { PostRestaurant, Restaurants, UpdateVote } from '@/types/restaurants.types';
 import { onBeforeMount, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
-const placesStore = usePlacesStore();
+const { places, patchVote, loadPlaces, isSaving, savePlace } = usePlacesStore();
 const mostRatedPlaces = ref<Restaurants[]>([])
 const alreadyVotedMessage = ref('')
 const down = ref<number>(0);
@@ -36,7 +36,7 @@ const voteUp = (id: string, enabled: boolean) => {
   alreadyVotedMessage.value = '';
   idRestaurant.value = id;
 
-  const r = (placesStore.places.filter(i => i._id === id))
+  const r = (places.filter(i => i._id === id))
   if (!enabled || r[0].voteOk.includes(authStore.username)) {
 
     alreadyVotedMessage.value = "No puedes voler a votar 👍"
@@ -57,7 +57,7 @@ const voteUp = (id: string, enabled: boolean) => {
 const voteDown = (id: string, enabled: boolean) => {
   alreadyVotedMessage.value = '';
   idRestaurant.value = id;
-  const r = (placesStore.places.filter(i => i._id === id))
+  const r = (places.filter(i => i._id === id))
   if (!enabled || r[0].voteKo.includes(authStore.username)) {
     alreadyVotedMessage.value = "No puedes voler a votar 👎"
     // openAlert();
@@ -85,17 +85,17 @@ const updateVote = async (data: { idPlace: string; votes: UpdateVote }) => {
       username: authStore.userLogged.username
     }
   }
-  await placesStore.patchVote(t)
+  await patchVote(t)
 }
 
 onBeforeMount(async () => {
-  await placesStore.loadPlaces();
+  await loadPlaces();
   firstPlaces();
   isLoggedUser();
 });
 const firstPlaces = () => {
   mostRatedPlaces.value = [];
-  placesStore.places.forEach((place, i) => {
+  places.forEach((place, i) => {
     if (i < 3) mostRatedPlaces.value.push(place);
   })
 }
@@ -105,11 +105,58 @@ watch(
 );
 
 watch(
-  () => placesStore.places,
+  () => places,
   () => firstPlaces(),
 );
 const isLoggedUser = () => {
   if (authStore.isLoggedIn === false) router.push('/login');
+}
+const formValue = ref<PostRestaurant>({
+  name: "",
+  street: "",
+  gmaps: "",
+  image: "",
+  web: "",
+  voteUp: 0,
+  voteDown: 0,
+  users: [],
+  voteKo: [],
+  voteOk: [],
+  enabled: true,
+  discarded: false,
+  description: '',
+});
+
+const isSubmitEnabled = () => {
+  return (hasLength(formValue.value.name) && hasLength(formValue.value.street))
+}
+
+const resetForm = () => {
+  formValue.value = {
+    name: "",
+    street: "",
+    gmaps: "",
+    image: "",
+    web: "",
+    voteUp: 0,
+    voteDown: 0,
+    users: [],
+    voteKo: [],
+    voteOk: [],
+    enabled: true,
+    discarded: false,
+    description: '',
+  };
+}
+
+const hasLength = (data: string) => {
+  return data.length > 0
+}
+
+const submit = async () => {
+  if (!isSubmitEnabled()) return;
+  await savePlace(formValue.value)
+  resetForm();
 }
 </script>
 
@@ -195,40 +242,66 @@ const isLoggedUser = () => {
     </div>
     <div class="px-4 md:px-10 mx-auto w-full -m-8 pb-20 flex flex-wrap items-center">
       <!-- cajas -->
-      <div v-for="place in placesStore.places" :key="place._id"
-        class="w-full md:w-6/12 sm:w-12/12 lg:w-4/12 px-4 flex relative">
-        <div class="absolute top-5 right-6 z-10 text-black">
-          <a class="cursor-pointer" title="Voto a favor" @click.prevent="voteUp(place._id, place.enabled)">
-            <span class="bg-transparent p-4 bg-white rounded-md text-green-700 font-bold">👍🏻 {{ place.voteUp
-              }}</span>
-          </a>
-          <a class="cursor-pointer" title="Voto en contra" @click.prevent="voteDown(place._id, place.enabled)">
-            <span class="bg-transparent p-4 bg-white rounded-md ml-2 text-red-700 font-bold">👎🏻 {{ place.voteDown
-              }}</span>
-          </a>
-        </div>
-        <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-green-600">
-          <img :alt="place.name" :src="place.image" class="w-full align-middle rounded-t-lg" />
-          <blockquote class="relative p-8 mb-4">
-            <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 583 95"
-              class="absolute left-0 w-full block" style="height: 95px; top: -94px">
-              <polygon points="-30,95 583,95 583,65" class="text-green-600 fill-current"></polygon>
-            </svg>
-            <h4 class="text-xl font-bold text-white">{{ place.name }}</h4>
-            <p class="text-md font-light mt-2 text-white">{{ place.description }}</p>
-          </blockquote>
-          <div class="flex flex-wrap items-center mx-auto mb-4">
-            <a v-if="place.web" :href="place.web" target="_blank"
-              class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1"
-              style="transition:all .15s ease">
-              Web
-            </a>
-            <a v-if="place.street" :href="place.street" target="_blank"
-              class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1"
-              style="transition:all .15s ease">
-              Google Maps
-            </a>
-          </div>
+      <div class="grid grid-cols-2 mx-auto w-6/12 mb-5">
+        <div class="bg-white border rounded-lg shadow border-gray-700 relative p-5">
+          <form class="space-y-4 md:space-y-6">
+            <div>
+              <label for="name" class="text-blueGray-600 block mb-2 text-sm font-medium">Nombre</label>
+              <input v-model="formValue.name" type="text" name="name" id="name"
+                class="bg-gray-50 border border-gray-300 text-gray-400 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 text-blueGray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Restaurante Oasis" required>
+            </div>
+            <div>
+              <label for="street"
+                class="block mb-2 text-sm font-medium text-gray-900 text-blueGray-600">Dirección</label>
+              <input v-model="formValue.street" type="text" name="street" id="street"
+                class="bg-gray-50 border border-gray-300 text-gray-400 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 text-blueGray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Carrer de Roselló 255" autocomplete="off" required>
+            </div>
+            <div>
+              <label for="gmaps" class="block mb-2 text-sm font-medium text-gray-900 text-blueGray-600">Google
+                Maps</label>
+              <input v-model="formValue.gmaps" type="text" name="gmaps" id="gmaps"
+                class="bg-gray-50 border border-gray-300 text-gray-400 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 text-blueGray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                autocomplete="off" required>
+            </div>
+            <div>
+              <label for="image" class="block mb-2 text-sm font-medium text-gray-900 text-blueGray-600">Imágen</label>
+              <input v-model="formValue.image" type="text" name="image" id="image"
+                class="bg-gray-50 border border-gray-300 text-gray-400 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 text-blueGray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=1051&amp;q=80"
+                autocomplete="off">
+            </div>
+            <div>
+              <label for="web" class="block mb-2 text-sm font-medium text-gray-900 text-blueGray-600">Website</label>
+              <input v-model="formValue.web" type="text" name="web" id="web" placeholder="https://www.google.es"
+                class="bg-gray-50 border border-gray-300 text-gray-400 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 text-blueGray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                autocomplete="off">
+            </div>
+            <div>
+              <label for="description"
+                class="block mb-2 text-sm font-medium text-gray-900 text-blueGray-600">Website</label>
+              <textarea v-model="formValue.description" type="text" name="description" id="description"
+                placeholder="Es ist ein lang erwiesener Fakt, dass ein Leser vom Text abgelenkt wird, wenn er sich ein Layout ansieht. Der Punkt, Lorem Ipsum zu nutzen."
+                class="bg-gray-50 border border-gray-300 text-gray-400 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 text-blueGray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500 resize-none"
+                autocomplete="off" rows="15"></textarea>
+            </div>
+            <div>
+              <label for="enabled" class="mb-2 text-sm font-medium text-gray-900 text-blueGray-600">Activar
+                restaurante</label>
+              <input v-model="formValue.enabled" type="checkbox" name="enabled" id="enabled"
+                placeholder="https://www.google.es"
+                class="bg-gray-50 border border-gray-300 text-gray-400 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 text-blueGray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                autocomplete="off" required>
+            </div>
+            <button v-if="!isSaving" @click.prevent="submit"
+              :class="{ 'bg-[#ccc] hover:bg-[#ccc] focus:ring-[#ccc] cursor-not-allowed focus:outline-none disabled:opacity-75': !isSubmitEnabled() }"
+              class="w-full text-white bg-[#19690b] hover:bg-[#37762c] focus:ring-4 focus:outline-none focus:ring-[#19690b] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#19690b] dark:hover:bg-[#19690b] dark:focus:ring-[#19690b]"
+              :disabled="!isSubmitEnabled()">Crear restaurante</button>
+            <!-- <div v-else class="flex justify-center">
+                <LoadingAtom :is-loading="props.isSaving" />
+            </div> -->
+          </form>
         </div>
       </div>
 

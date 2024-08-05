@@ -5,8 +5,10 @@ import Navbar from '@/components/atoms/Navbar.vue';
 import type { Restaurants, UpdateVote } from '@/types/restaurants.types';
 import { onBeforeMount, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStringUtils } from '@/utils/strings';
 
 const authStore = useAuthStore();
+const { truncateDescription } = useStringUtils();
 const placesStore = usePlacesStore();
 const mostRatedPlaces = ref<Restaurants[]>([])
 const alreadyVotedMessage = ref('')
@@ -203,7 +205,7 @@ const isLoggedUser = () => {
     <div class="px-4 md:px-10 mx-auto w-full -m-8 pb-20 flex flex-wrap items-center">
       <!-- cajas -->
       <div v-for="place in placesStore.places" :key="place._id"
-        class="w-full md:w-6/12 sm:w-12/12 lg:w-4/12 px-4 flex relative">
+        class="w-full md:w-6/12 sm:w-12/12 lg:w-4/12 px-4 flex relative max-h-[568px] min-h-[568px]">
         <div class="absolute top-5 right-6 z-10 text-black">
           <a class="cursor-pointer" title="Voto a favor" @click.prevent="voteUp(place._id, place.enabled)">
             <span class="bg-transparent p-4 bg-white rounded-md text-green-700 font-bold">👍🏻 {{ place.voteUp
@@ -222,7 +224,7 @@ const isLoggedUser = () => {
               <polygon points="-30,95 583,95 583,65" class="text-green-600 fill-current"></polygon>
             </svg>
             <h4 class="text-xl font-bold text-white">{{ place.name }}</h4>
-            <p class="text-md font-light mt-2 text-white">{{ place.description }}</p>
+            <p class="text-md font-light mt-2 text-white">{{ truncateDescription(place.description, 170) }}</p>
           </blockquote>
           <div class="flex flex-wrap items-center mx-auto mb-4">
             <a v-if="place.web" :href="place.web" target="_blank"
