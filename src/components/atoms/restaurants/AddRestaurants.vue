@@ -2,6 +2,7 @@
 import { useAuthStore } from '@/stores/authStore';
 import { usePlacesStore } from '@/stores/placesStore';
 import Navbar from '@/components/atoms/Navbar.vue';
+import Loading from '@/components/atoms/LoadingAtom.vue';
 import type { PostRestaurant, Restaurants } from '@/types/restaurants.types';
 import { onBeforeMount, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -102,6 +103,9 @@ const hasLength = (data: string) => {
 
 const submit = async () => {
   if (!isSubmitEnabled()) return;
+  const exist = usePlaceStore.places.find((restaurant) => restaurant.name.toLocaleLowerCase().includes(formValue.value.name.toLocaleLowerCase()));
+  if (exist?._id) return mensaje(`Restaurante "${formValue.value.name} ya existe"`, true);
+
   await usePlaceStore.savePlace(formValue.value);
   mensaje(`Restaurante "${formValue.value.name} ha sido creado correctamente"`, false);
   resetForm();
@@ -114,7 +118,6 @@ const submit = async () => {
     <Navbar :username="authStore.userLogged.username" />
     <!-- Header -->
     <div class="relative bg-green-600 md:pt-32 pb-32 pt-12">
-
       <div class="px-4 md:px-10 mx-auto w-full">
         <div class="px-4 md:px-10 mx-auto w-full -m-24">
           <div class="flex flex-wrap mt-20">
@@ -130,7 +133,6 @@ const submit = async () => {
                   </div>
                 </div>
                 <div class="block w-full overflow-x-auto">
-                  <!-- Projects table -->
                   <table class="items-center w-full bg-transparent border-collapse">
                     <thead>
                       <tr>
@@ -248,12 +250,11 @@ const submit = async () => {
               class="w-full text-white bg-[#19690b] hover:bg-[#37762c] focus:ring-4 focus:outline-none focus:ring-[#19690b] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#19690b] dark:hover:bg-[#19690b] dark:focus:ring-[#19690b]"
               :disabled="!isSubmitEnabled()">Crear restaurante</button>
             <div v-else class="flex justify-center">
-              <LoadingAtom :is-loading="usePlaceStore.isSaving" />
+              <Loading :is-loading="usePlaceStore.isSaving" />
             </div>
           </form>
         </div>
       </div>
-
       <!-- cajas -->
     </div>
   </div>
