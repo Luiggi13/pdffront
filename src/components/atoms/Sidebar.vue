@@ -101,6 +101,5 @@ onBeforeMount(() => {
 
       </div>
     </div>
-    <slot />
   </nav>
 </template>
