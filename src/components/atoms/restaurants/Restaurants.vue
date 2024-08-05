@@ -6,10 +6,12 @@ import type { Restaurants, UpdateVote } from '@/types/restaurants.types';
 import { onBeforeMount, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStringUtils } from '@/utils/strings';
+import { useAppStore } from '@/stores/appStore';
 
 const authStore = useAuthStore();
 const { truncateDescription } = useStringUtils();
 const placesStore = usePlacesStore();
+const appStore = useAppStore();
 const mostRatedPlaces = ref<Restaurants[]>([])
 const alreadyVotedMessage = ref('')
 const down = ref<number>(0);
@@ -38,11 +40,11 @@ const voteUp = (id: string, enabled: boolean) => {
   alreadyVotedMessage.value = '';
   idRestaurant.value = id;
 
-  const r = (placesStore.places.filter(i => i._id === id))
+  const r = (placesStore.places.filter(i => i._id === id));
   if (!enabled || r[0].voteOk.includes(authStore.username)) {
-
-    alreadyVotedMessage.value = "No puedes voler a votar 👍"
-    // openAlert();
+    const nameRestaurant = placesStore.places.find(i => i._id === id);
+    alreadyVotedMessage.value = "No puedes volver a votar el mismo tipo de voto para " + nameRestaurant?.name;
+    mensaje(alreadyVotedMessage.value, true);
     return
   };
   idRestaurant.value = id;
@@ -61,8 +63,9 @@ const voteDown = (id: string, enabled: boolean) => {
   idRestaurant.value = id;
   const r = (placesStore.places.filter(i => i._id === id))
   if (!enabled || r[0].voteKo.includes(authStore.username)) {
-    alreadyVotedMessage.value = "No puedes voler a votar 👎"
-    // openAlert();
+    const nameRestaurant = placesStore.places.find(i => i._id === id);
+    alreadyVotedMessage.value = "No puedes volver a votar el mismo tipo de voto para " + nameRestaurant?.name;
+    mensaje(alreadyVotedMessage.value, true);
     return
   };
   idRestaurant.value = id;
@@ -113,6 +116,9 @@ watch(
 const isLoggedUser = () => {
   if (authStore.isLoggedIn === false) router.push('/login');
 }
+
+const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage(message, isError);
+
 </script>
 
 <template>
