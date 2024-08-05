@@ -2,17 +2,15 @@
 import { useAuthStore } from '@/stores/authStore';
 import { usePlacesStore } from '@/stores/placesStore';
 import Navbar from '@/components/atoms/Navbar.vue';
-import type { PostRestaurant, Restaurants, UpdateVote } from '@/types/restaurants.types';
+import type { PostRestaurant, Restaurants } from '@/types/restaurants.types';
 import { onBeforeMount, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAppStore } from '@/stores/appStore';
 
 const authStore = useAuthStore();
-const { places, patchVote, loadPlaces, isSaving, savePlace } = usePlacesStore();
+const appStore = useAppStore();
+const usePlaceStore = usePlacesStore();
 const mostRatedPlaces = ref<Restaurants[]>([])
-const alreadyVotedMessage = ref('')
-const down = ref<number>(0);
-const idRestaurant = ref<string>("");
-const up = ref<number>(0);
 const router = useRouter();
 
 const getBarra = (votesUp: number, users: string[], style = false) => {
@@ -32,70 +30,15 @@ const calculateApprovalPercentage = (votesUp: number, users: string[]): number =
   return percentage;
 }
 
-const voteUp = (id: string, enabled: boolean) => {
-  alreadyVotedMessage.value = '';
-  idRestaurant.value = id;
-
-  const r = (places.filter(i => i._id === id))
-  if (!enabled || r[0].voteOk.includes(authStore.username)) {
-
-    alreadyVotedMessage.value = "No puedes voler a votar 👍"
-    // openAlert();
-    return
-  };
-  idRestaurant.value = id;
-  up.value = 1;
-  down.value = 0;
-  updateVote({
-    idPlace: idRestaurant.value,
-    votes: {
-      voteDown: down.value,
-      voteUp: up.value,
-    },
-  })
-};
-const voteDown = (id: string, enabled: boolean) => {
-  alreadyVotedMessage.value = '';
-  idRestaurant.value = id;
-  const r = (places.filter(i => i._id === id))
-  if (!enabled || r[0].voteKo.includes(authStore.username)) {
-    alreadyVotedMessage.value = "No puedes voler a votar 👎"
-    // openAlert();
-    return
-  };
-  idRestaurant.value = id;
-  up.value = 0;
-  down.value = 1;
-  updateVote({
-    idPlace: idRestaurant.value,
-    votes: {
-      voteDown: down.value,
-      voteUp: up.value,
-    },
-  })
-};
-
-const updateVote = async (data: { idPlace: string; votes: UpdateVote }) => {
-  data.votes.username = authStore.userLogged.username
-  const t: { idPlace: string; votes: UpdateVote } = {
-    idPlace: data.idPlace,
-    votes: {
-      voteDown: data.votes.voteDown,
-      voteUp: data.votes.voteUp,
-      username: authStore.userLogged.username
-    }
-  }
-  await patchVote(t)
-}
-
 onBeforeMount(async () => {
-  await loadPlaces();
+  await usePlaceStore.loadPlaces();
   firstPlaces();
   isLoggedUser();
 });
+
 const firstPlaces = () => {
   mostRatedPlaces.value = [];
-  places.forEach((place, i) => {
+  usePlaceStore.places.forEach((place, i) => {
     if (i < 3) mostRatedPlaces.value.push(place);
   })
 }
@@ -105,12 +48,16 @@ watch(
 );
 
 watch(
-  () => places,
-  () => firstPlaces(),
+  () => usePlaceStore.places,
+  () => {
+    firstPlaces()
+  },
 );
 const isLoggedUser = () => {
   if (authStore.isLoggedIn === false) router.push('/login');
 }
+const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage(message, isError);
+
 const formValue = ref<PostRestaurant>({
   name: "",
   street: "",
@@ -155,8 +102,10 @@ const hasLength = (data: string) => {
 
 const submit = async () => {
   if (!isSubmitEnabled()) return;
-  await savePlace(formValue.value)
+  await usePlaceStore.savePlace(formValue.value);
+  mensaje(`Restaurante "${formValue.value.name} ha sido creado correctamente"`, false);
   resetForm();
+  await usePlacesStore().loadPlaces();
 }
 </script>
 
@@ -175,7 +124,7 @@ const submit = async () => {
                   <div class="flex flex-wrap items-center">
                     <div class="relative w-full px-4 max-w-full flex-grow flex-1">
                       <h3 class="font-semibold text-base text-blueGray-700">
-                        Restaurantes add
+                        Restaurantes {{ usePlaceStore.places.length }}
                       </h3>
                     </div>
                   </div>
@@ -294,13 +243,13 @@ const submit = async () => {
                 class="bg-gray-50 border border-gray-300 text-gray-400 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 text-blueGray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 autocomplete="off" required>
             </div>
-            <button v-if="!isSaving" @click.prevent="submit"
+            <button v-if="!usePlaceStore.isSaving" @click.prevent="submit"
               :class="{ 'bg-[#ccc] hover:bg-[#ccc] focus:ring-[#ccc] cursor-not-allowed focus:outline-none disabled:opacity-75': !isSubmitEnabled() }"
               class="w-full text-white bg-[#19690b] hover:bg-[#37762c] focus:ring-4 focus:outline-none focus:ring-[#19690b] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#19690b] dark:hover:bg-[#19690b] dark:focus:ring-[#19690b]"
               :disabled="!isSubmitEnabled()">Crear restaurante</button>
-            <!-- <div v-else class="flex justify-center">
-                <LoadingAtom :is-loading="props.isSaving" />
-            </div> -->
+            <div v-else class="flex justify-center">
+              <LoadingAtom :is-loading="usePlaceStore.isSaving" />
+            </div>
           </form>
         </div>
       </div>

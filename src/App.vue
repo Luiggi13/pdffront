@@ -52,7 +52,7 @@ watch(
 
   i.fa-check {
     background-color: #167837;
-    color: transparent;
+    color: #4aed80;
     padding: 0.3rem;
     border-radius: 50%;
   }
