@@ -82,9 +82,6 @@ const submit = async () => {
   resetForm();
   await usePlacesStore().loadPlaces();
 }
-const goToEdit = (idRestaurant: string) => {
-  router.push({ path: `/edit/${idRestaurant}` });
-}
 </script>
 
 <template>
