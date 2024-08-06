@@ -177,7 +177,7 @@ const fillRestaurant = () => {
                         </div>
                         <div>
                           <label for="description"
-                            class="block mb-2 text-sm font-medium text-gray-900 text-blueGray-600">Website</label>
+                            class="block mb-2 text-sm font-medium text-gray-900 text-blueGray-600">Descripción</label>
                           <textarea v-model="formValue.description" type="text" name="description" id="description"
                             placeholder="Es ist ein lang erwiesener Fakt, dass ein Leser vom Text abgelenkt wird, wenn er sich ein Layout ansieht. Der Punkt, Lorem Ipsum zu nutzen."
                             class="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 resize-none"
