@@ -231,17 +231,17 @@ const openAlert = () => alertOpen.value = true;
           class="w-full md:w-6/12 sm:w-12/12 lg:w-4/12 px-4 flex relative">
           <div class="absolute top-5 right-6 z-10 text-black">
             <a class="cursor-pointer" title="Voto a favor" @click.prevent="voteUp(place._id, place.enabled)">
-              <span class="bg-transparent p-4 bg-white rounded-md text-green-700 font-bold">👍🏻 {{ place.voteUp
+              <span class="p-4 bg-white rounded-md text-green-700 font-bold">👍🏻 {{ place.voteUp
                 }}</span>
             </a>
             <a class="cursor-pointer" title="Voto en contra" @click.prevent="voteDown(place._id, place.enabled)">
-              <span class="bg-transparent p-4 bg-white rounded-md ml-2 text-red-700 font-bold">👎🏻 {{ place.voteDown
+              <span class="p-4 bg-white rounded-md ml-2 text-red-700 font-bold">👎🏻 {{ place.voteDown
                 }}</span>
             </a>
           </div>
           <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-green-600">
             <img :alt="place.name" :src="place.image" class="w-full align-middle rounded-t-lg" />
-            <blockquote class="relative p-8 mb-4">
+            <blockquote class="relative p-8 mb-4 h-[320px]">
               <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 583 95"
                 class="absolute left-0 w-full block" style="height: 95px; top: -94px">
                 <polygon points="-30,95 583,95 583,65" class="text-green-600 fill-current"></polygon>

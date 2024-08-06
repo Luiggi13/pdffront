@@ -9,8 +9,14 @@ export const usePlaces = () => {
     return response;
   };
 
+  const patchPlace = async (restaurant: Restaurants) => {
+    const response = await axiosInstance.patch<Restaurants>(`${API_ROUTES.places}/${restaurant._id}`, restaurant);
+
+    return response;
+  };
+
   const patchVoteById = async (data: { idPlace: string; votes: UpdateVote }) => {
-    const response = await axiosInstance.patch<Restaurants>(`${API_ROUTES.places}/${data.idPlace}`, data.votes);
+    const response = await axiosInstance.patch<Restaurants>(`${API_ROUTES.places}/${data.idPlace}/votes`, data.votes);
 
     return response;
   };
@@ -47,12 +53,13 @@ export const usePlaces = () => {
     return response.data;
   };
   return {
+    deletePlaceById,
     getPlaces,
     getRestaurantById,
+    patchPlace,
+    patchPlaceDiscardedById,
+    patchPlaceVisibilityById,
     patchVoteById,
     postRestaurant,
-    patchPlaceVisibilityById,
-    deletePlaceById,
-    patchPlaceDiscardedById,
   };
 };

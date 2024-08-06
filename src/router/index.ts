@@ -5,6 +5,7 @@ import Dashboard from '@/layouts/Dashboard.vue';
 import RestaurantLayout from '@/layouts/RestaurantLayout.vue';
 import Restaurants from '@/components/atoms/restaurants/Restaurants.vue';
 import AddRestaurants from '@/components/atoms/restaurants/AddRestaurants.vue';
+import EditRestaurants from '@/components/atoms/restaurants/EditRestaurants.vue';
 
 export const menusApp: RouteRecordRaw[] = [
   {
@@ -34,8 +35,18 @@ export const menusApp: RouteRecordRaw[] = [
       },
       {
         path: '/add',
-        name: 'add-resaturant',
+        name: 'add-restaurant',
         component: AddRestaurants,
+      },
+      {
+        path: '/edit',
+        name: 'edit-restaurant',
+        component: EditRestaurants,
+      },
+      {
+        path: '/edit/:id',
+        name: 'edit-restaurant-single',
+        component: EditRestaurants,
       },
     ],
   },

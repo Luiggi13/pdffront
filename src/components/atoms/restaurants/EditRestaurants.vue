@@ -1,22 +1,27 @@
 <script lang="ts" setup>
+import { onBeforeMount, reactive, ref, watch } from 'vue';
+import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import { usePlacesStore } from '@/stores/placesStore';
-import Navbar from '@/components/atoms/Navbar.vue';
+import { useRoute, useRouter } from 'vue-router';
 import Loading from '@/components/atoms/LoadingAtom.vue';
+import Navbar from '@/components/atoms/Navbar.vue';
 import type { PostRestaurant, Restaurants } from '@/types/restaurants.types';
-import { onBeforeMount, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAppStore } from '@/stores/appStore';
+import { onMounted } from 'vue';
 
-const authStore = useAuthStore();
 const appStore = useAppStore();
-const usePlaceStore = usePlacesStore();
-const mostRatedPlaces = ref<Restaurants[]>([])
+const authStore = useAuthStore();
 const router = useRouter();
+const route = useRoute();
+const usePlaceStore = usePlacesStore();
+const restaurantToEdit = ref<Restaurants>()
 
 onBeforeMount(async () => {
   await usePlaceStore.loadPlaces();
   isLoggedUser();
+  restaurantToEdit.value = usePlaceStore.places.find((restaurant) => restaurant._id === route.params.id);
+  if (restaurantToEdit.value === undefined) mensaje(`Restaurante con la id "${route.params.id} no existe"`, true);
+  else fillRestaurant();
 });
 
 watch(
@@ -29,7 +34,9 @@ const isLoggedUser = () => {
 }
 const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage(message, isError);
 
-const formValue = ref<PostRestaurant>({
+const formValue = reactive<Restaurants>({
+  _id: "",
+  username: "",
   name: "",
   street: "",
   gmaps: "",
@@ -43,29 +50,28 @@ const formValue = ref<PostRestaurant>({
   enabled: true,
   discarded: false,
   description: '',
-  username: useAuthStore().userLogged.username,
 });
 
 const isSubmitEnabled = () => {
-  return (hasLength(formValue.value.name) && hasLength(formValue.value.street))
+  return (hasLength(formValue.name) && hasLength(formValue.street))
 }
 
 const resetForm = () => {
-  formValue.value = {
-    name: "",
-    street: "",
-    gmaps: "",
-    image: "",
-    web: "",
-    voteUp: 0,
-    voteDown: 0,
-    users: [],
-    voteKo: [],
-    voteOk: [],
-    enabled: true,
-    discarded: false,
-    description: '',
-  };
+  formValue._id = "";
+  formValue.username = "";
+  formValue.name = "";
+  formValue.street = "";
+  formValue.gmaps = "";
+  formValue.image = "";
+  formValue.web = "";
+  formValue.voteUp = 0;
+  formValue.voteDown = 0;
+  formValue.users = [];
+  formValue.voteKo = [];
+  formValue.voteOk = [];
+  formValue.enabled = true;
+  formValue.discarded = false;
+  formValue.description = '';
 }
 
 const hasLength = (data: string) => {
@@ -74,17 +80,38 @@ const hasLength = (data: string) => {
 
 const submit = async () => {
   if (!isSubmitEnabled()) return;
-  const exist = usePlaceStore.places.find((restaurant) => restaurant.name.toLocaleLowerCase().includes(formValue.value.name.toLocaleLowerCase()));
-  if (exist?._id) return mensaje(`Restaurante "${formValue.value.name} ya existe"`, true);
+  const exist = usePlaceStore.places.find((restaurant) => restaurant.name.toLocaleLowerCase().includes(formValue.name.toLocaleLowerCase()));
+  if (exist?._id) return mensaje(`Restaurante "${formValue.name} ya existe"`, true);
 
-  await usePlaceStore.savePlace(formValue.value);
-  mensaje(`Restaurante "${formValue.value.name} ha sido creado correctamente"`, false);
+  await usePlaceStore.patchPlaceById(formValue);
+  mensaje(`Restaurante "${formValue.name} ha sido creado correctamente"`, false);
   resetForm();
-  await usePlacesStore().loadPlaces();
 }
-const goToEdit = (idRestaurant: string) => {
-  router.push({ path: `/edit/${idRestaurant}` });
-}
+
+const fillRestaurant = () => {
+  if (!restaurantToEdit.value) return;
+
+  Object.assign(formValue, {
+    ...restaurantToEdit.value,
+    username: useAuthStore().userLogged.username,
+    _id: restaurantToEdit.value._id ?? '',
+    name: restaurantToEdit.value.name ?? '',
+    street: restaurantToEdit.value.street ?? '',
+    gmaps: restaurantToEdit.value.gmaps ?? '',
+    image: restaurantToEdit.value.image ?? '',
+    web: restaurantToEdit.value.web ?? '',
+    enabled: restaurantToEdit.value.enabled ?? false,
+    description: restaurantToEdit.value.description ?? '',
+    voteUp: restaurantToEdit.value.voteUp ?? 0,
+    voteDown: restaurantToEdit.value.voteDown ?? 0,
+    users: restaurantToEdit.value.users ?? [],
+    voteKo: restaurantToEdit.value.voteKo ?? [],
+    voteOk: restaurantToEdit.value.voteOk ?? [],
+    discarded: restaurantToEdit.value.discarded ?? false,
+  });
+};
+
+
 </script>
 
 <template>
@@ -99,7 +126,7 @@ const goToEdit = (idRestaurant: string) => {
               <div class="relative flex flex-col min-w-0 break-words w-full mb-6">
                 <div class="rounded-t mb-0 py-3 border-0">
                   <h3 class="font-semibold text-base text-blueGray-700 w-full border-b-[1px] pb-2">
-                    Nuevo restaurante:
+                    Editar Restaurante: <span class="uppercase italic">{{ formValue.name }}</span>
                   </h3>
                 </div>
                 <div class="w-full overflow-x-auto">
@@ -168,7 +195,7 @@ const goToEdit = (idRestaurant: string) => {
                         <button v-if="!usePlaceStore.isSaving" @click.prevent="submit"
                           :class="{ 'bg-[#ccc] hover:bg-[#ccc] focus:ring-[#ccc] cursor-not-allowed focus:outline-none disabled:opacity-75': !isSubmitEnabled() }"
                           class="w-full text-white bg-[#19690b] hover:bg-[#37762c] focus:ring-4 focus:outline-none focus:ring-[#19690b] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#19690b] dark:hover:bg-[#19690b] dark:focus:ring-[#19690b]"
-                          :disabled="!isSubmitEnabled()">Crear restaurante</button>
+                          :disabled="!isSubmitEnabled()">Actualizar restaurante</button>
                         <div v-else class="flex justify-center">
                           <Loading :is-loading="usePlaceStore.isSaving" />
                         </div>

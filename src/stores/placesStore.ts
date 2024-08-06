@@ -11,6 +11,7 @@ export const usePlacesStore = defineStore(
     const newPlace = ref<Restaurants>();
     const messageError = ref<string>('');
     const isLoadingPlaces = ref<boolean>(false);
+    const isPatchingPlace = ref<boolean>(false);
     const isSaving = ref<boolean>(false);
     const headers: { title: string; width: string }[] = [
       { title: 'Nombre', width: 'w-[300px]' },
@@ -26,12 +27,13 @@ export const usePlacesStore = defineStore(
       patchPlaceVisibilityById,
       deletePlaceById,
       patchPlaceDiscardedById,
+      patchPlace,
     } = usePlaces();
 
-    const loadPlaces = async () => {
+    const loadPlaces = async (onlyEnabled = true) => {
       try {
         isLoadingPlaces.value = true;
-        const resp = await getPlaces();
+        const resp = await getPlaces(onlyEnabled);
         places.value = resp.data;
         // places.value = resp.data?.filter((place) => place.enabled);
       } catch (error) {
@@ -60,6 +62,21 @@ export const usePlacesStore = defineStore(
         console.log(error);
       } finally {
         isSaving.value = false;
+      }
+    };
+    const patchPlaceById = async (restaurant: Restaurants) => {
+      try {
+        isPatchingPlace.value = true;
+        const respuesta = await patchPlace(restaurant);
+        if (respuesta.data.error) {
+          errorAVoidDuplicates(respuesta.data.error);
+          isPatchingPlace.value = false;
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        await getPlaces(false);
+        isPatchingPlace.value = false;
       }
     };
     const patchVote = async (data: { idPlace: string; votes: UpdateVote }) => {
@@ -136,20 +153,22 @@ export const usePlacesStore = defineStore(
       }, 5000);
     };
     return {
+      allPlaces,
       deleteById,
+      headers,
+      isLoadingPlaces,
+      isPatchingPlace,
+      isSaving,
       loadAllPlaces,
       loadPlaces,
-      patchVote,
-      savePlace,
-      patchVisibility,
-      patchDiscarded,
-      places,
       messageError,
-      isLoadingPlaces,
-      isSaving,
-      headers,
       newPlace,
-      allPlaces,
+      patchDiscarded,
+      patchPlaceById,
+      patchVisibility,
+      patchVote,
+      places,
+      savePlace,
     };
   },
   { persist: true }
