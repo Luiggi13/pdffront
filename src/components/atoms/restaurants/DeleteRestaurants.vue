@@ -18,17 +18,9 @@ const restaurantToEdit = ref<Restaurants>()
 
 onBeforeMount(async () => {
   authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
-  isLoggedUser();
 });
 
-watch(
-  () => authStore.isLoggedIn,
-  () => isLoggedUser(),
-);
 
-const isLoggedUser = () => {
-  if (authStore.isLoggedIn === false) router.push('/login');
-}
 const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage(message, isError);
 
 const formValue = reactive<Restaurants>({

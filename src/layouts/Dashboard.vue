@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { onBeforeMount, ref, watch } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
-import { useRouter } from 'vue-router';
 import Navbar from '@/components/atoms/Navbar.vue';
 import Sidebar from '@/components/atoms/Sidebar.vue';
 import { usePlacesStore } from '@/stores/placesStore';
@@ -12,24 +11,13 @@ const authStore = useAuthStore();
 const logout = () => authStore.logout();
 const placesStore = usePlacesStore();
 const appStore = useAppStore();
-const router = useRouter();
 const up = ref<number>(0);
 const down = ref<number>(0);
 
 
 onBeforeMount(async () => {
   authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
-  isLoggedUser();
 });
-
-const isLoggedUser = () => {
-  if (authStore.isLoggedIn === false) router.push('/login');
-}
-
-watch(
-  () => authStore.isLoggedIn,
-  () => isLoggedUser(),
-);
 
 const voteUp = (id: string, enabled: boolean) => {
   const filteredRestaurants = (placesStore.places.find(i => i._id === id));

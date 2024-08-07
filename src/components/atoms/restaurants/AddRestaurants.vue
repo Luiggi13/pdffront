@@ -4,29 +4,19 @@ import { usePlacesStore } from '@/stores/placesStore';
 import Navbar from '@/components/atoms/Navbar.vue';
 import Loading from '@/components/atoms/LoadingAtom.vue';
 import type { PostRestaurant } from '@/types/restaurants.types';
-import { onBeforeMount, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { onBeforeMount, ref } from 'vue';
 import { useAppStore } from '@/stores/appStore';
 
 const authStore = useAuthStore();
 const appStore = useAppStore();
 const placesStore = usePlacesStore();
-const router = useRouter();
 
 onBeforeMount(async () => {
   loadPremiumPlaces();
-  isLoggedUser();
 });
 
 const loadPremiumPlaces = async () => authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
-watch(
-  () => authStore.isLoggedIn,
-  () => isLoggedUser(),
-);
 
-const isLoggedUser = () => {
-  if (authStore.isLoggedIn === false) router.push('/login');
-}
 const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage(message, isError);
 
 const formValue = ref<PostRestaurant>({

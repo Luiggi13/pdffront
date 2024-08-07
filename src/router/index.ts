@@ -7,6 +7,7 @@ import Restaurants from '@/components/atoms/restaurants/Restaurants.vue';
 import AddRestaurants from '@/components/atoms/restaurants/AddRestaurants.vue';
 import EditRestaurants from '@/components/atoms/restaurants/EditRestaurants.vue';
 import DeleteRestaurants from '@/components/atoms/restaurants/DeleteRestaurants.vue';
+import { useAuthStore } from '@/stores/authStore';
 
 export const menusApp: RouteRecordRaw[] = [
   {
@@ -25,6 +26,9 @@ export const menusApp: RouteRecordRaw[] = [
     path: '/dashboard',
     name: 'dashboard',
     component: Dashboard,
+    beforeEnter: () => {
+      if (useAuthStore().isLoggedIn === false) router.push('/login');
+    },
   },
   {
     path: '/restaurants',
@@ -34,16 +38,25 @@ export const menusApp: RouteRecordRaw[] = [
         path: '',
         name: 'restaurants',
         component: Restaurants,
+        beforeEnter: () => {
+          if (useAuthStore().isLoggedIn === false) router.push('/login');
+        },
       },
       {
         path: '/add',
         name: 'add-restaurant',
         component: AddRestaurants,
+        beforeEnter: () => {
+          if (useAuthStore().isLoggedIn === false) router.push('/login');
+        },
       },
       {
         path: '/edit',
         name: 'edit-restaurant',
         component: EditRestaurants,
+        beforeEnter: () => {
+          if (useAuthStore().isLoggedIn === false) router.push('/login');
+        },
       },
       {
         path: '/edit/:id',
@@ -54,6 +67,9 @@ export const menusApp: RouteRecordRaw[] = [
         path: '/delete',
         name: 'delete-restaurant',
         component: DeleteRestaurants,
+        beforeEnter: () => {
+          if (useAuthStore().isLoggedIn === false || !useAuthStore().isPremium) router.push('/dashboard');
+        },
       },
     ],
   },

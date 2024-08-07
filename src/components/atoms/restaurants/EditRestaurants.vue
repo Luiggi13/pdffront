@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onBeforeMount, reactive, ref, watch } from 'vue';
+import { onBeforeMount, reactive, ref } from 'vue';
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import { usePlacesStore } from '@/stores/placesStore';
@@ -17,7 +17,6 @@ const restaurantToEdit = ref<Restaurants>()
 
 onBeforeMount(async () => {
   authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
-  isLoggedUser();
   restaurantToEdit.value = placesStore.places.find((restaurant) => restaurant._id === route.params.id);
   if (restaurantToEdit.value === undefined) {
     mensaje(`Restaurante con la id "${route.params.id} no existe"`, true);
@@ -26,14 +25,6 @@ onBeforeMount(async () => {
   else fillRestaurant();
 });
 
-watch(
-  () => authStore.isLoggedIn,
-  () => isLoggedUser(),
-);
-
-const isLoggedUser = () => {
-  if (authStore.isLoggedIn === false) router.push('/login');
-}
 const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage(message, isError);
 
 const formValue = reactive<Restaurants>({

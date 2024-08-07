@@ -2,7 +2,7 @@
 import { useAuthStore } from '@/stores/authStore';
 import { usePlacesStore } from '@/stores/placesStore';
 import Navbar from '@/components/atoms/Navbar.vue';
-import { onBeforeMount, watch } from 'vue';
+import { onBeforeMount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStringUtils } from '@/utils/strings';
 import MoreVoted from './MoreVoted.vue';
@@ -14,17 +14,7 @@ const router = useRouter();
 
 onBeforeMount(async () => {
   authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
-  isLoggedUser();
 });
-
-watch(
-  () => authStore.isLoggedIn,
-  () => isLoggedUser(),
-);
-
-const isLoggedUser = () => {
-  if (authStore.isLoggedIn === false) router.push('/login');
-}
 
 const goToEdit = (idRestaurant: string) => {
   router.push({ path: `/edit/${idRestaurant}` });
