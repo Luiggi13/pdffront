@@ -9,6 +9,12 @@ export const usePlaces = () => {
     return response;
   };
 
+  const getPlacesNotDiscarded = async () => {
+    const response = await axiosInstance.get<Restaurants[]>(API_ROUTES.discarded);
+
+    return response;
+  };
+
   const patchPlace = async (restaurant: Restaurants) => {
     const response = await axiosInstance.patch<Restaurants>(`${API_ROUTES.places}/${restaurant._id}`, restaurant);
 
@@ -55,6 +61,7 @@ export const usePlaces = () => {
   return {
     deletePlaceById,
     getPlaces,
+    getPlacesNotDiscarded,
     getRestaurantById,
     patchPlace,
     patchPlaceDiscardedById,

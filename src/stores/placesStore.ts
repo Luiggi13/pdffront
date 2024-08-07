@@ -22,6 +22,7 @@ export const usePlacesStore = defineStore(
     ];
     const {
       getPlaces,
+      getPlacesNotDiscarded,
       patchVoteById,
       postRestaurant,
       patchPlaceVisibilityById,
@@ -42,6 +43,19 @@ export const usePlacesStore = defineStore(
         isLoadingPlaces.value = false;
       }
     };
+
+    const loadPlaceNotDiscarded = async () => {
+      try {
+        isLoadingPlaces.value = true;
+        const resp = await getPlacesNotDiscarded();
+        places.value = resp.data;
+      } catch (error) {
+        console.log(error);
+      } finally {
+        isLoadingPlaces.value = false;
+      }
+    };
+
     const loadAllPlaces = async () => {
       try {
         isLoadingPlaces.value = true;
@@ -161,6 +175,7 @@ export const usePlacesStore = defineStore(
       isSaving,
       loadAllPlaces,
       loadPlaces,
+      loadPlaceNotDiscarded,
       messageError,
       newPlace,
       patchDiscarded,
