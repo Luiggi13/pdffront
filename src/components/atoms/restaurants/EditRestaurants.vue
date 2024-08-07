@@ -83,11 +83,14 @@ const hasLength = (data: string) => {
 
 const submit = async () => {
   if (!isSubmitEnabled()) return;
-  const exist = usePlaceStore.places.find((restaurant) => restaurant.name.toLocaleLowerCase().includes(formValue.name.toLocaleLowerCase()));
+  const index = usePlaceStore.places.findIndex((item) => item.name.toLocaleLowerCase() === formValue.name.toLocaleLowerCase());
+  if (index !== -1) usePlaceStore.places.splice(index, 1);
+
+  const exist = usePlaceStore.places.find((restaurant) => restaurant.name.toLocaleLowerCase() === formValue.name.toLocaleLowerCase());
   if (exist?._id) return mensaje(`Restaurante "${formValue.name} ya existe"`, true);
 
   await usePlaceStore.patchPlaceById(formValue);
-  mensaje(`Restaurante "${formValue.name} ha sido creado correctamente"`, false);
+  mensaje(`Restaurante "${formValue.name} ha sido actualizado correctamente"`, false);
   resetForm();
 }
 
@@ -186,14 +189,23 @@ const fillRestaurant = () => {
                             class="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 resize-none"
                             autocomplete="off" rows="15"></textarea>
                         </div>
-                        <div class="my-4">
-                          <label for="enabled" class="mb-2 text-sm font-medium text-gray-900 text-blueGray-600">
-                            Activar restaurante
-                            <input v-model="formValue.enabled" type="checkbox" name="enabled" id="enabled"
-                              placeholder="https://www.google.es"
-                              class="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 p-2.5"
-                              autocomplete="off">
-                          </label>
+                        <div class="grid grid-cols-2 gap-4 my-4">
+                          <div>
+                            <label for="enabled" class="mb-2 text-sm font-medium text-gray-900 text-blueGray-600">
+                              Activar restaurante
+                              <input v-model="formValue.enabled" type="checkbox" name="enabled" id="enabled"
+                                class="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 p-2.5"
+                                autocomplete="off">
+                            </label>
+                          </div>
+                          <div>
+                            <label for="discarded" class="mb-2 text-sm font-medium text-gray-900 text-blueGray-600">
+                              Descartar restaurante
+                              <input v-model="formValue.discarded" type="checkbox" name="discarded" id="discarded"
+                                class="bg-gray-50 border border-gray-300 text-black sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 p-2.5"
+                                autocomplete="off">
+                            </label>
+                          </div>
                         </div>
                         <button v-if="!usePlaceStore.isSaving" @click.prevent="submit"
                           :class="{ 'bg-[#ccc] hover:bg-[#ccc] focus:ring-[#ccc] cursor-not-allowed focus:outline-none disabled:opacity-75': !isSubmitEnabled() }"
