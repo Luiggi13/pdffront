@@ -18,7 +18,7 @@ const down = ref<number>(0);
 
 
 onBeforeMount(async () => {
-  await placesStore.loadPlaces();
+  await placesStore.loadPlaceNotDiscarded();
   isLoggedUser();
 });
 
@@ -82,7 +82,7 @@ const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage
     <div class="relative md:ml-64 bg-blueGray-100">
       <Navbar :username="authStore.userLogged.username" />
       <!-- Header -->
-      <MoreVoted />
+      <MoreVoted :places="placesStore.places" />
       <div class="px-4 md:px-10 mx-auto w-full -m-8 pb-20 flex flex-wrap items-center">
         <!-- cajas -->
         <div v-for="place in placesStore.places" :key="place._id"
