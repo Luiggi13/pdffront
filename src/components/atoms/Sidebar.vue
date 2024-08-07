@@ -75,7 +75,7 @@ onBeforeMount(() => {
               <router-link to="/dashboard">Dashboard</router-link>
             </a>
           </li>
-          <li class="items-center">
+          <li v-if="props.isPremium" class="items-center">
             <a :class="{ 'text-green-500': isActive('/restaurants') }"
               class="hover:text-green-600 text-xs uppercase py-3 font-bold block"><i
                 class="fas fa-utensils text-blueGray-400 mr-2 text-sm"></i>
@@ -90,10 +90,14 @@ onBeforeMount(() => {
               </router-link></a>
             <ul class="md:flex-col md:min-w-full flex flex-col list-none">
               <li class="hover:text-green-600 text-xs py-1 block pl-5">
-                <router-link to="/add"><i class="fa-regular fa-plus pr-2"></i>Add restaurant</router-link>
+                <router-link to="/add"><i class="fa-regular fa-plus pr-2"></i>Add restaurant <i
+                    class="fa-solid fa-crown text-yellow-400 absolute right-2 top[0.15rem]"></i></router-link>
               </li>
               <li class="hover:text-green-600 text-xs py-1 block pl-5">
-                <router-link to="/edit"><i class="fa-regular fa-pen-to-square pr-2"></i>Edit restaurant</router-link>
+                <router-link class="relative w-full block" to="/edit"><i
+                    class="fa-solid fa-trash text-red-600 pr-2"></i>Delete
+                  restaurant <i
+                    class="fa-solid fa-crown text-yellow-400 absolute right-2 top[0.15rem]"></i></router-link>
               </li>
             </ul>
           </li>

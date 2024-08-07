@@ -18,7 +18,7 @@ const down = ref<number>(0);
 
 
 onBeforeMount(async () => {
-  await placesStore.loadPlaceNotDiscarded();
+  authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
   isLoggedUser();
 });
 
@@ -78,7 +78,7 @@ const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage
 </script>
 <template>
   <div class="h-full">
-    <Sidebar :is-premium="authStore.userLogged.isPremium" @logout="logout" />
+    <Sidebar :is-premium="authStore.isPremium" @logout="logout" />
     <div class="relative md:ml-64 bg-blueGray-100">
       <Navbar :username="authStore.userLogged.username" />
       <!-- Header -->

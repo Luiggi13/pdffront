@@ -7,7 +7,7 @@ const logout = () => authStore.logout();
 </script>
 <template>
   <div class="h-full">
-    <Sidebar :is-premium="authStore.userLogged.isPremium" @logout="logout" />
+    <Sidebar :is-premium="authStore.isPremium" @logout="logout" />
     <router-view></router-view>
   </div>
 </template>

@@ -10,14 +10,15 @@ import { useAppStore } from '@/stores/appStore';
 
 const authStore = useAuthStore();
 const appStore = useAppStore();
-const usePlaceStore = usePlacesStore();
+const placesStore = usePlacesStore();
 const router = useRouter();
 
 onBeforeMount(async () => {
-  await usePlaceStore.loadPlaces();
+  loadPremiumPlaces();
   isLoggedUser();
 });
 
+const loadPremiumPlaces = async () => authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
 watch(
   () => authStore.isLoggedIn,
   () => isLoggedUser(),
@@ -75,13 +76,13 @@ const hasLength = (data: string) => data.length > 0;
 
 const submit = async () => {
   if (!isSubmitEnabled()) return;
-  const exist = usePlaceStore.places.find((restaurant) => restaurant.name.toLocaleLowerCase().includes(formValue.value.name.toLocaleLowerCase()));
+  const exist = placesStore.places.find((restaurant) => restaurant.name.toLocaleLowerCase().includes(formValue.value.name.toLocaleLowerCase()));
   if (exist?._id) return mensaje(`Restaurante "${formValue.value.name} ya existe"`, true);
 
-  await usePlaceStore.savePlace(formValue.value);
+  await placesStore.savePlace(formValue.value);
   mensaje(`Restaurante "${formValue.value.name} ha sido creado correctamente"`, false);
   resetForm();
-  await usePlacesStore().loadPlaces();
+  loadPremiumPlaces();
 }
 </script>
 
@@ -163,12 +164,12 @@ const submit = async () => {
                               autocomplete="off">
                           </label>
                         </div>
-                        <button v-if="!usePlaceStore.isSaving" @click.prevent="submit"
+                        <button v-if="!placesStore.isSaving" @click.prevent="submit"
                           :class="{ 'bg-[#ccc] hover:bg-[#ccc] focus:ring-[#ccc] cursor-not-allowed focus:outline-none disabled:opacity-75': !isSubmitEnabled() }"
                           class="w-full text-white bg-[#19690b] hover:bg-[#37762c] focus:ring-4 focus:outline-none focus:ring-[#19690b] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#19690b] dark:hover:bg-[#19690b] dark:focus:ring-[#19690b]"
                           :disabled="!isSubmitEnabled()">Crear restaurante</button>
                         <div v-else class="flex justify-center">
-                          <Loading :is-loading="usePlaceStore.isSaving" />
+                          <Loading :is-loading="placesStore.isSaving" />
                         </div>
                       </form>
                     </div>

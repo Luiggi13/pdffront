@@ -13,7 +13,7 @@ const placesStore = usePlacesStore();
 const router = useRouter();
 
 onBeforeMount(async () => {
-  await placesStore.loadPlaces();
+  authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
   isLoggedUser();
 });
 

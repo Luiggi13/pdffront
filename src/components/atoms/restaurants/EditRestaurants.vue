@@ -12,13 +12,13 @@ const appStore = useAppStore();
 const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
-const usePlaceStore = usePlacesStore();
+const placesStore = usePlacesStore();
 const restaurantToEdit = ref<Restaurants>()
 
 onBeforeMount(async () => {
-  await usePlaceStore.loadPlaces();
+  authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
   isLoggedUser();
-  restaurantToEdit.value = usePlaceStore.places.find((restaurant) => restaurant._id === route.params.id);
+  restaurantToEdit.value = placesStore.places.find((restaurant) => restaurant._id === route.params.id);
   if (restaurantToEdit.value === undefined) {
     mensaje(`Restaurante con la id "${route.params.id} no existe"`, true);
     router.push({ path: `/restaurants` });
@@ -82,13 +82,13 @@ const hasLength = (data: string) => {
 
 const submit = async () => {
   if (!isSubmitEnabled()) return;
-  const index = usePlaceStore.places.findIndex((item) => item.name.toLocaleLowerCase() === formValue.name.toLocaleLowerCase());
-  if (index !== -1) usePlaceStore.places.splice(index, 1);
+  const index = placesStore.places.findIndex((item) => item.name.toLocaleLowerCase() === formValue.name.toLocaleLowerCase());
+  if (index !== -1) placesStore.places.splice(index, 1);
 
-  const exist = usePlaceStore.places.find((restaurant) => restaurant.name.toLocaleLowerCase() === formValue.name.toLocaleLowerCase());
+  const exist = placesStore.places.find((restaurant) => restaurant.name.toLocaleLowerCase() === formValue.name.toLocaleLowerCase());
   if (exist?._id) return mensaje(`Restaurante "${formValue.name} ya existe"`, true);
 
-  await usePlaceStore.patchPlaceById(formValue);
+  await placesStore.patchPlaceById(formValue);
   mensaje(`Restaurante "${formValue.name} ha sido actualizado correctamente"`, false);
   resetForm();
 }
@@ -206,12 +206,12 @@ const fillRestaurant = () => {
                             </label>
                           </div>
                         </div>
-                        <button v-if="!usePlaceStore.isSaving" @click.prevent="submit"
+                        <button v-if="!placesStore.isSaving" @click.prevent="submit"
                           :class="{ 'bg-[#ccc] hover:bg-[#ccc] focus:ring-[#ccc] cursor-not-allowed focus:outline-none disabled:opacity-75': !isSubmitEnabled() }"
                           class="w-full text-white bg-[#19690b] hover:bg-[#37762c] focus:ring-4 focus:outline-none focus:ring-[#19690b] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#19690b] dark:hover:bg-[#19690b] dark:focus:ring-[#19690b]"
                           :disabled="!isSubmitEnabled()">Actualizar restaurante</button>
                         <div v-else class="flex justify-center">
-                          <Loading :is-loading="usePlaceStore.isSaving" />
+                          <Loading :is-loading="placesStore.isSaving" />
                         </div>
                       </form>
                     </div>
