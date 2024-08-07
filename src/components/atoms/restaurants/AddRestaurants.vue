@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { usePlacesStore } from '@/stores/placesStore';
 import Navbar from '@/components/atoms/Navbar.vue';
 import Loading from '@/components/atoms/LoadingAtom.vue';
-import type { PostRestaurant, Restaurants } from '@/types/restaurants.types';
+import type { PostRestaurant } from '@/types/restaurants.types';
 import { onBeforeMount, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAppStore } from '@/stores/appStore';
@@ -11,7 +11,6 @@ import { useAppStore } from '@/stores/appStore';
 const authStore = useAuthStore();
 const appStore = useAppStore();
 const usePlaceStore = usePlacesStore();
-const mostRatedPlaces = ref<Restaurants[]>([])
 const router = useRouter();
 
 onBeforeMount(async () => {
@@ -72,9 +71,7 @@ const resetForm = () => {
   };
 }
 
-const hasLength = (data: string) => {
-  return data.length > 0
-}
+const hasLength = (data: string) => data.length > 0;
 
 const submit = async () => {
   if (!isSubmitEnabled()) return;
