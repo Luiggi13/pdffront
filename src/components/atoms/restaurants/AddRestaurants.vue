@@ -37,7 +37,11 @@ const formValue = ref<PostRestaurant>({
   web: "",
   voteUp: 0,
   voteDown: 0,
-  users: [],
+  users: [
+    "Christian",
+    "Ester",
+    "Mariana",
+    "Elena"],
   voteKo: [],
   voteOk: [],
   enabled: true,
