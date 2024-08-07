@@ -94,7 +94,7 @@ onBeforeMount(() => {
                     class="fa-solid fa-crown text-yellow-400 absolute right-2 top[0.15rem]"></i></router-link>
               </li>
               <li class="hover:text-green-600 text-xs py-1 block pl-5">
-                <router-link class="relative w-full block" to="/edit"><i
+                <router-link class="relative w-full block" to="/delete"><i
                     class="fa-solid fa-trash text-red-600 pr-2"></i>Delete
                   restaurant <i
                     class="fa-solid fa-crown text-yellow-400 absolute right-2 top[0.15rem]"></i></router-link>
