@@ -6,8 +6,7 @@ import { usePlacesStore } from '@/stores/placesStore';
 import { useRoute, useRouter } from 'vue-router';
 import Loading from '@/components/atoms/LoadingAtom.vue';
 import Navbar from '@/components/atoms/Navbar.vue';
-import type { PostRestaurant, Restaurants } from '@/types/restaurants.types';
-import { onMounted } from 'vue';
+import type { Restaurants } from '@/types/restaurants.types';
 
 const appStore = useAppStore();
 const authStore = useAuthStore();
