@@ -11,8 +11,9 @@ export const menusApp: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'home',
-    component: Inside,
-    meta: { transition: 'slide-left' },
+    redirect: () => {
+      return { path: '/login' };
+    },
   },
   {
     path: '/login',
