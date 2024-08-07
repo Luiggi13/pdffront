@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { usePlacesStore } from '@/stores/placesStore';
 import type { Restaurants } from '@/types/restaurants.types';
 import { onBeforeMount, ref } from 'vue';
+
+const props = defineProps<{
+  places: Restaurants[];
+}>();
 
 const seAll = ref<boolean>(false);
 const mostRatedPlaces = ref<Restaurants[]>([])
 
-const placesStore = usePlacesStore();
 onBeforeMount(async () => {
-  await placesStore.loadPlaces();
   firstPlaces();
 });
 
@@ -16,10 +17,10 @@ const firstPlaces = (all = false) => {
   mostRatedPlaces.value = [];
   if (all) {
     seAll.value = true;
-    return mostRatedPlaces.value = placesStore.places;
+    return mostRatedPlaces.value = props.places;
   }
   seAll.value = false;
-  placesStore.places.forEach((place, i) => {
+  props.places.forEach((place, i) => {
     if (i < 3) mostRatedPlaces.value.push(place);
   })
 }
