@@ -7,21 +7,21 @@ import Sidebar from '@/components/atoms/Sidebar.vue';
 import { usePlacesStore } from '@/stores/placesStore';
 import type { UpdateVote } from '@/types/restaurants.types';
 import MoreVoted from '@/components/atoms/restaurants/MoreVoted.vue';
+import { useAppStore } from '@/stores/appStore';
 const authStore = useAuthStore();
 const logout = () => authStore.logout();
 const placesStore = usePlacesStore();
+const appStore = useAppStore();
 const router = useRouter();
-const alertOpen = ref(false);
-const alreadyVotedMessage = ref('')
-const down = ref<number>(0);
-const idRestaurant = ref<string>("");
 const up = ref<number>(0);
+const down = ref<number>(0);
 
 
 onBeforeMount(async () => {
   await placesStore.loadPlaces();
   isLoggedUser();
 });
+
 const isLoggedUser = () => {
   if (authStore.isLoggedIn === false) router.push('/login');
 }
@@ -32,21 +32,14 @@ watch(
 );
 
 const voteUp = (id: string, enabled: boolean) => {
-  alreadyVotedMessage.value = '';
-  idRestaurant.value = id;
-
-  const r = (placesStore.places.filter(i => i._id === id))
-  if (!enabled || r[0].voteOk.includes(authStore.username)) {
-
-    alreadyVotedMessage.value = "No puedes voler a votar 👍"
-    openAlert();
-    return
+  const filteredRestaurants = (placesStore.places.find(i => i._id === id));
+  if (!enabled || filteredRestaurants?.voteOk.includes(authStore.username)) {
+    return mensaje(`No puedes voler a votar 👍`, true);
   };
-  idRestaurant.value = id;
   up.value = 1;
   down.value = 0;
   updateVote({
-    idPlace: idRestaurant.value,
+    idPlace: id,
     votes: {
       voteDown: down.value,
       voteUp: up.value,
@@ -54,19 +47,14 @@ const voteUp = (id: string, enabled: boolean) => {
   })
 };
 const voteDown = (id: string, enabled: boolean) => {
-  alreadyVotedMessage.value = '';
-  idRestaurant.value = id;
-  const r = (placesStore.places.filter(i => i._id === id))
-  if (!enabled || r[0].voteKo.includes(authStore.username)) {
-    alreadyVotedMessage.value = "No puedes voler a votar 👎"
-    openAlert();
-    return
+  const filteredRestaurants = (placesStore.places.find(i => i._id === id))
+  if (!enabled || filteredRestaurants?.voteKo.includes(authStore.username)) {
+    return mensaje(`Restaurante "No puedes voler a votar 👎`, true);
   };
-  idRestaurant.value = id;
   up.value = 0;
   down.value = 1;
   updateVote({
-    idPlace: idRestaurant.value,
+    idPlace: id,
     votes: {
       voteDown: down.value,
       voteUp: up.value,
@@ -74,22 +62,19 @@ const voteDown = (id: string, enabled: boolean) => {
   })
 };
 
-// esto en lugar del emit
 const updateVote = async (data: { idPlace: string; votes: UpdateVote }) => {
   data.votes.username = authStore.userLogged.username
-  const t: { idPlace: string; votes: UpdateVote } = {
+  const dataToUpdate: { idPlace: string; votes: UpdateVote } = {
     idPlace: data.idPlace,
     votes: {
       voteDown: data.votes.voteDown,
       voteUp: data.votes.voteUp,
-      username: authStore.userLogged.username
+      username: data.votes.username,
     }
   }
-  await placesStore.patchVote(t)
-}
-
-const closeAlert = () => alertOpen.value = false;
-const openAlert = () => alertOpen.value = true;
+  await placesStore.patchVote(dataToUpdate);
+};
+const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage(message, isError);
 </script>
 <template>
   <div class="h-full">
