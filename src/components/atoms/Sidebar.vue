@@ -3,9 +3,9 @@ import { ref } from 'vue';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { onBeforeMount } from 'vue';
+import { usePlacesStore } from '@/stores/placesStore';
 
 const props = defineProps<{
-  username: string;
   isPremium: boolean;
 }>();
 const emit = defineEmits<{
@@ -40,10 +40,10 @@ onBeforeMount(() => {
         <i class="fas fa-bars"></i>
       </button>
       <!-- Brand -->
-      <a class="md:block text-left md:pb-2 text-green-600 mr-0 inline-block whitespace-nowrap text-sm capitalize font-bold p-4 px-0"
-        href="javascript:void(0)">
+      <span
+        class="md:block text-left md:pb-2 text-green-600 mr-0 inline-block whitespace-nowrap text-sm capitalize font-bold p-4 px-0">
         Christmas Dinner {{ currentYear }}
-      </a>
+      </span>
       <!-- Collapse -->
       <div
         class="md:flex md:flex-col md:items-stretch md:opacity-100 md:relative md:mt-4 md:shadow-none shadow absolute top-0 left-0 right-0 z-40 overflow-y-auto overflow-x-hidden h-auto items-center flex-1 rounded"
@@ -79,7 +79,15 @@ onBeforeMount(() => {
             <a :class="{ 'text-green-500': isActive('/restaurants') }"
               class="hover:text-green-600 text-xs uppercase py-3 font-bold block"><i
                 class="fas fa-utensils text-blueGray-400 mr-2 text-sm"></i>
-              <router-link to="/restaurants">Restaurants</router-link></a>
+              <router-link to="/restaurants" class="relative">Restaurants
+                <div class="absolute w-3 h-3 -top-1 left-[85px]">
+                  <span
+                    class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-white bg-green-500 rounded-full">{{
+          usePlacesStore().places.length }}</span>
+                </div>
+
+
+              </router-link></a>
             <ul class="md:flex-col md:min-w-full flex flex-col list-none">
               <li class="hover:text-green-600 text-xs py-1 block pl-5">
                 <router-link to="/add"><i class="fa-regular fa-plus pr-2"></i>Add restaurant</router-link>

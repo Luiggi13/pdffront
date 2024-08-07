@@ -121,7 +121,7 @@ const openAlert = () => alertOpen.value = true;
 </script>
 <template>
   <div class="h-full">
-    <Sidebar :username="authStore.username" :is-premium="authStore.userLogged.isPremium" @logout="logout">
+    <Sidebar :is-premium="authStore.userLogged.isPremium" @logout="logout">
       <!-- alert -->
       <div v-if="alertOpen"
         class="text-white px-6 py-4 border-0 rounded absolute mb-4 bg-green-500 z-50 bottom-0 w-52 transition-all">

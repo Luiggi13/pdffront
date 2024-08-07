@@ -20,7 +20,10 @@ onBeforeMount(async () => {
   await usePlaceStore.loadPlaces();
   isLoggedUser();
   restaurantToEdit.value = usePlaceStore.places.find((restaurant) => restaurant._id === route.params.id);
-  if (restaurantToEdit.value === undefined) mensaje(`Restaurante con la id "${route.params.id} no existe"`, true);
+  if (restaurantToEdit.value === undefined) {
+    mensaje(`Restaurante con la id "${route.params.id} no existe"`, true);
+    router.push({ path: `/restaurants` });
+  }
   else fillRestaurant();
 });
 
