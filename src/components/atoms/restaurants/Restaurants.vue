@@ -13,11 +13,8 @@ const { truncateDescription } = useStringUtils();
 const placesStore = usePlacesStore();
 const appStore = useAppStore();
 const mostRatedPlaces = ref<Restaurants[]>([])
-const alreadyVotedMessage = ref('')
-const down = ref<number>(0);
-const idRestaurant = ref<string>("");
-const up = ref<number>(0);
 const router = useRouter();
+const seAll = ref<boolean>(false);
 
 const getBarra = (votesUp: number, users: string[], style = false) => {
   const total = calculateApprovalPercentage(votesUp, users);
@@ -36,70 +33,19 @@ const calculateApprovalPercentage = (votesUp: number, users: string[]): number =
   return percentage;
 }
 
-const voteUp = (id: string, enabled: boolean) => {
-  alreadyVotedMessage.value = '';
-  idRestaurant.value = id;
-
-  const r = (placesStore.places.filter(i => i._id === id));
-  if (!enabled || r[0].voteOk.includes(authStore.username)) {
-    const nameRestaurant = placesStore.places.find(i => i._id === id);
-    alreadyVotedMessage.value = "No puedes volver a votar el mismo tipo de voto para " + nameRestaurant?.name;
-    mensaje(alreadyVotedMessage.value, true);
-    return
-  };
-  idRestaurant.value = id;
-  up.value = 1;
-  down.value = 0;
-  updateVote({
-    idPlace: idRestaurant.value,
-    votes: {
-      voteDown: down.value,
-      voteUp: up.value,
-    },
-  })
-};
-const voteDown = (id: string, enabled: boolean) => {
-  alreadyVotedMessage.value = '';
-  idRestaurant.value = id;
-  const r = (placesStore.places.filter(i => i._id === id))
-  if (!enabled || r[0].voteKo.includes(authStore.username)) {
-    const nameRestaurant = placesStore.places.find(i => i._id === id);
-    alreadyVotedMessage.value = "No puedes volver a votar el mismo tipo de voto para " + nameRestaurant?.name;
-    mensaje(alreadyVotedMessage.value, true);
-    return
-  };
-  idRestaurant.value = id;
-  up.value = 0;
-  down.value = 1;
-  updateVote({
-    idPlace: idRestaurant.value,
-    votes: {
-      voteDown: down.value,
-      voteUp: up.value,
-    },
-  })
-};
-
-const updateVote = async (data: { idPlace: string; votes: UpdateVote }) => {
-  data.votes.username = authStore.userLogged.username
-  const t: { idPlace: string; votes: UpdateVote } = {
-    idPlace: data.idPlace,
-    votes: {
-      voteDown: data.votes.voteDown,
-      voteUp: data.votes.voteUp,
-      username: authStore.userLogged.username
-    }
-  }
-  await placesStore.patchVote(t)
-}
-
 onBeforeMount(async () => {
   await placesStore.loadPlaces();
   firstPlaces();
   isLoggedUser();
 });
-const firstPlaces = () => {
+const firstPlaces = (all = false) => {
   mostRatedPlaces.value = [];
+  mostRatedPlaces.value = [];
+  if (all) {
+    seAll.value = true;
+    return mostRatedPlaces.value = placesStore.places;
+  }
+  seAll.value = false;
   placesStore.places.forEach((place, i) => {
     if (i < 3) mostRatedPlaces.value.push(place);
   })
@@ -117,7 +63,6 @@ const isLoggedUser = () => {
   if (authStore.isLoggedIn === false) router.push('/login');
 }
 
-const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage(message, isError);
 const goToEdit = (idRestaurant: string) => {
   router.push({ path: `/edit/${idRestaurant}` });
 }
@@ -136,18 +81,23 @@ const goToEdit = (idRestaurant: string) => {
               <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
                 <div class="rounded-t mb-0 px-4 py-3 border-0">
                   <div class="flex flex-wrap items-center">
-                    <div class="relative w-full px-4 max-w-full flex-grow flex-1">
+                    <div class="relative w-full px-2 max-w-full flex-grow flex-1">
                       <h3 class="font-semibold text-base text-blueGray-700">
-                        Restaurantes
+                        Top 3 restaurantes más votados
                       </h3>
                     </div>
-                    <!-- <div class="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                      <button
+                    <div class="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
+                      <button v-if="!seAll"
                         class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1"
-                        type="button" style="transition:all .15s ease">
-                        See all
+                        type="button" style="transition:all .15s ease" @click.prevent="firstPlaces(true)">
+                        Ver todos
                       </button>
-                    </div> -->
+                      <button v-else
+                        class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1"
+                        type="button" style="transition:all .15s ease" @click.prevent="firstPlaces()">
+                        Ver 3 mejores
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div class="block w-full overflow-x-auto">

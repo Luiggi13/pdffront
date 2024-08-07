@@ -17,6 +17,7 @@ const down = ref<number>(0);
 const idRestaurant = ref<string>("");
 const mostRatedPlaces = ref<Restaurants[]>([])
 const up = ref<number>(0);
+const seAll = ref<boolean>(false);
 
 
 onBeforeMount(async () => {
@@ -28,8 +29,13 @@ const isLoggedUser = () => {
   if (authStore.isLoggedIn === false) router.push('/login');
 }
 
-const firstPlaces = () => {
+const firstPlaces = (all = false) => {
   mostRatedPlaces.value = [];
+  if (all) {
+    seAll.value = true;
+    return mostRatedPlaces.value = placesStore.places;
+  }
+  seAll.value = false;
   placesStore.places.forEach((place, i) => {
     if (i < 3) mostRatedPlaces.value.push(place);
   })
@@ -151,18 +157,23 @@ const openAlert = () => alertOpen.value = true;
                 <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
                   <div class="rounded-t mb-0 px-4 py-3 border-0">
                     <div class="flex flex-wrap items-center">
-                      <div class="relative w-full px-4 max-w-full flex-grow flex-1">
+                      <div class="relative w-full px-2 max-w-full flex-grow flex-1">
                         <h3 class="font-semibold text-base text-blueGray-700">
-                          Restaurantes
+                          Top 3 restaurantes más votados
                         </h3>
                       </div>
-                      <!-- <div class="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
-                    <button
-                      class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1"
-                      type="button" style="transition:all .15s ease">
-                      See all
-                    </button>
-                  </div> -->
+                      <div class="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
+                        <button v-if="!seAll"
+                          class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1"
+                          type="button" style="transition:all .15s ease" @click.prevent="firstPlaces(true)">
+                          Ver todos
+                        </button>
+                        <button v-else
+                          class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1"
+                          type="button" style="transition:all .15s ease" @click.prevent="firstPlaces()">
+                          Ver 3 mejores
+                        </button>
+                      </div>
                     </div>
                   </div>
                   <div class="block w-full overflow-x-auto">
