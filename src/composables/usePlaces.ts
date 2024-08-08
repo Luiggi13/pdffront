@@ -56,7 +56,7 @@ export const usePlaces = () => {
   const getRestaurantById = async (restaurant_id: string) => {
     const response = await axiosInstance.get<Restaurants>(`${API_ROUTES.places}/${restaurant_id}`);
 
-    return response.data;
+    return response;
   };
   return {
     deletePlaceById,

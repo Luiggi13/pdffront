@@ -4,6 +4,10 @@ import type { Restaurants } from '@/types/restaurants.types';
 const props = defineProps<{
   places: Restaurants[];
 }>();
+
+const emit = defineEmits<{
+  (e: "delete-restaurant", place: Restaurants): void;
+}>();
 const headersTable: readonly string[] = ['Name', 'Dirección', 'Actions'];
 </script>
 <template>
@@ -28,7 +32,7 @@ const headersTable: readonly string[] = ['Name', 'Dirección', 'Actions'];
           <td class="px-6 py-4 w-[25%]">
             <button
               class="bg-red-500 text-white active:bg-red-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1"
-              type="button" style="transition:all .15s ease" @click.prevent="">
+              type="button" style="transition:all .15s ease" @click.prevent="emit('delete-restaurant', place)">
               Eliminar
             </button>
           </td>

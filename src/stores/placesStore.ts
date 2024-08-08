@@ -22,6 +22,7 @@ export const usePlacesStore = defineStore(
     ];
     const {
       getPlaces,
+      getRestaurantById,
       getPlacesNotDiscarded,
       patchVoteById,
       postRestaurant,
@@ -160,6 +161,21 @@ export const usePlacesStore = defineStore(
         isLoadingPlaces.value = false;
       }
     };
+    const restaurantById = async (idPlace: string) => {
+      try {
+        isLoadingPlaces.value = true;
+        const respuesta = await getRestaurantById(idPlace);
+        if (respuesta.data.error) {
+          errorAVoidDuplicates(respuesta.data.error);
+          isLoadingPlaces.value = false;
+        }
+        return respuesta;
+      } catch (error) {
+        console.log(error);
+      } finally {
+        isLoadingPlaces.value = false;
+      }
+    };
     const errorAVoidDuplicates = (msg: string) => {
       messageError.value = msg;
       setTimeout(() => {
@@ -183,6 +199,7 @@ export const usePlacesStore = defineStore(
       patchVisibility,
       patchVote,
       places,
+      restaurantById,
       savePlace,
     };
   },

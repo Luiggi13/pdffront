@@ -19,3 +19,4 @@ export type Restaurants = {
 
 export type UpdateVote = Pick<Restaurants, 'voteUp' | 'voteDown' | 'username'>;
 export type PostRestaurant = Omit<Restaurants, '_id'>;
+export type DeleteRestaurant = Pick<Restaurants, '_id' | 'name'>;

@@ -1,115 +1,55 @@
 <script lang="ts" setup>
-import { onBeforeMount, reactive, ref, watch } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import { usePlacesStore } from '@/stores/placesStore';
-import { useRoute, useRouter } from 'vue-router';
-import Loading from '@/components/atoms/LoadingAtom.vue';
 import Navbar from '@/components/atoms/Navbar.vue';
-import type { Restaurants } from '@/types/restaurants.types';
+import type { DeleteRestaurant } from '@/types/restaurants.types';
 import TableRestaurants from './TableRestaurants.vue';
+import ModalDeleteRestaurant from '@/components/atoms/modals/ModalDeleteRestaurant.vue';
 
 const appStore = useAppStore();
 const authStore = useAuthStore();
-const router = useRouter();
-const route = useRoute();
 const placesStore = usePlacesStore();
-const restaurantToEdit = ref<Restaurants>()
+const statusModal = ref<boolean>(false);
+const placeToDelete = ref<DeleteRestaurant>({
+  _id: '',
+  name: '',
+});
 
 onBeforeMount(async () => {
   authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
 });
 
-
 const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage(message, isError);
 
-const formValue = reactive<Restaurants>({
-  _id: "",
-  username: "",
-  name: "",
-  street: "",
-  gmaps: "",
-  image: "",
-  web: "",
-  voteUp: 0,
-  voteDown: 0,
-  users: [],
-  voteKo: [],
-  voteOk: [],
-  enabled: true,
-  discarded: false,
-  description: '',
-});
-
-const isSubmitEnabled = () => {
-  return (hasLength(formValue.name) && hasLength(formValue.street))
-}
-
-const resetForm = () => {
-  formValue._id = "";
-  formValue.username = "";
-  formValue.name = "";
-  formValue.street = "";
-  formValue.gmaps = "";
-  formValue.image = "";
-  formValue.web = "";
-  formValue.voteUp = 0;
-  formValue.voteDown = 0;
-  formValue.users = [];
-  formValue.voteKo = [];
-  formValue.voteOk = [];
-  formValue.enabled = true;
-  formValue.discarded = false;
-  formValue.description = '';
-}
-
-const hasLength = (data: string) => {
-  return data.length > 0
+const checkIfPlaceExist = async () => {
+  const encontrado = await placesStore.restaurantById(placeToDelete.value._id);
+  if (!encontrado?.data._id) {
+    mensaje(`Restaurante "${encontrado?.data.name} no existe"`, true)
+    return statusModal.value = !statusModal.value;
+  };
 }
 
 const submit = async () => {
-  if (!isSubmitEnabled()) return;
-  const index = placesStore.places.findIndex((item) => item.name.toLocaleLowerCase() === formValue.name.toLocaleLowerCase());
-  if (index !== -1) placesStore.places.splice(index, 1);
-
-  const exist = placesStore.places.find((restaurant) => restaurant.name.toLocaleLowerCase() === formValue.name.toLocaleLowerCase());
-  if (exist?._id) return mensaje(`Restaurante "${formValue.name} ya existe"`, true);
-
-  await placesStore.patchPlaceById(formValue);
-  mensaje(`Restaurante "${formValue.name} ha sido actualizado correctamente"`, false);
-  resetForm();
+  checkIfPlaceExist();
+  await placesStore.deleteById(placeToDelete.value._id)
+  mensaje(`Restaurante ${placeToDelete.value.name} ha sido eliminado correctamente`, false);
+  return statusModal.value = !statusModal.value;
 }
 
-const fillRestaurant = () => {
-  if (!restaurantToEdit.value) return;
-
-  Object.assign(formValue, {
-    ...restaurantToEdit.value,
-    username: useAuthStore().userLogged.username,
-    _id: restaurantToEdit.value._id ?? '',
-    name: restaurantToEdit.value.name ?? '',
-    street: restaurantToEdit.value.street ?? '',
-    gmaps: restaurantToEdit.value.gmaps ?? '',
-    image: restaurantToEdit.value.image ?? '',
-    web: restaurantToEdit.value.web ?? '',
-    enabled: restaurantToEdit.value.enabled ?? false,
-    description: restaurantToEdit.value.description ?? '',
-    voteUp: restaurantToEdit.value.voteUp ?? 0,
-    voteDown: restaurantToEdit.value.voteDown ?? 0,
-    users: restaurantToEdit.value.users ?? [],
-    voteKo: restaurantToEdit.value.voteKo ?? [],
-    voteOk: restaurantToEdit.value.voteOk ?? [],
-    discarded: restaurantToEdit.value.discarded ?? false,
-  });
-};
-
-
+const deletePlace = (restaurant: DeleteRestaurant) => {
+  statusModal.value = true;
+  placeToDelete.value = restaurant;
+}
+const closeModal = (close: boolean) => {
+  statusModal.value = !close;
+}
 </script>
 
 <template>
   <div class="relative md:ml-64 bg-blueGray-100">
     <Navbar :username="authStore.userLogged.username" />
-    <!-- Header -->
     <div class="relative bg-white pt-12">
       <div class="px-4 md:px-10 mx-auto w-full">
         <div class="px-4 md:px-10 mx-auto w-full">
@@ -122,10 +62,9 @@ const fillRestaurant = () => {
                   </h3>
                 </div>
                 <div class="w-full overflow-x-auto">
-
-                  <TableRestaurants :places="placesStore.places" />
-
-
+                  <TableRestaurants :places="placesStore.places" @delete-restaurant="deletePlace" />
+                  <ModalDeleteRestaurant :is-visible="statusModal" :place="placeToDelete" @delete-restaurant="submit"
+                    @close="closeModal" />
                 </div>
               </div>
             </div>
