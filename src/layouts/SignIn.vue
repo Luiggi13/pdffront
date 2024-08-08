@@ -4,9 +4,6 @@ import { onBeforeMount } from 'vue';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable'
-
 const authStore = useAuthStore();
 const router = useRouter();
 const isLogged = computed(() => authStore.isLoggedIn);
@@ -27,35 +24,6 @@ onBeforeMount(() => {
   if (authStore.isLoggedIn) navigateToHome();
 })
 
-const pdf = () => {
-  const data = [
-    { "name": "John Doe", "age": 29, "email": "john@example.com" },
-    { "name": "Jane Smith", "age": 32, "email": "jane@example.com" },
-    { "name": "Sam Johnson", "age": 23, "email": "sam@example.com" }
-  ];
-  const doc = new jsPDF();
-  const columns = [
-    { header: 'Name', dataKey: 'name' },
-    { header: 'Age', dataKey: 'age' },
-    { header: 'Email', dataKey: 'email' }
-  ];
-
-  const columnStyles = {
-    name: { cellWidth: 50 }, // Ancho de columna para 'Name'
-    age: { cellWidth: 20 },  // Ancho de columna para 'Age'
-    email: { cellWidth: 80 } // Ancho de columna para 'Email'
-  };
-
-  // Generar la tabla en el PDF
-  autoTable(doc, {
-    columns: columns,
-    body: data,
-    columnStyles: columnStyles
-  });
-
-  // Guardar el PDF
-  doc.save('table.pdf');
-}
 </script>
 <template>
   <div class="flex min-h-full flex-1 flex-col justify-center lg:px-8">
