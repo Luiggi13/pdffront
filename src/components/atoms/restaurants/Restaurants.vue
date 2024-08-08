@@ -24,12 +24,11 @@ const goToEdit = (idRestaurant: string) => {
 <template>
   <div class="relative md:ml-64 bg-blueGray-100">
     <Navbar :username="authStore.userLogged.username" />
-    <!-- Header -->
     <MoreVoted :places="placesStore.places" />
     <div class="px-4 md:px-10 mx-auto w-full -m-8 pb-20 flex flex-wrap items-center">
       <!-- cajas -->
       <div v-for="place in placesStore.places" :key="place._id"
-        class="w-full md:w-6/12 sm:w-12/12 lg:w-4/12 px-4 flex relative max-h-[568px] min-h-[568px]">
+        class="w-full md:w-6/12 sm:w-12/12 lg:w-4/12 px-4 flex relative min-h-[568px]">
         <div class="absolute top-2 right-6 z-10 text-black">
           <a class="cursor-pointer" @click.prevent="goToEdit(place._id)">
             <i class="p-4 bg-white rounded-md fas fa-pen-to-square"></i>
@@ -59,7 +58,6 @@ const goToEdit = (idRestaurant: string) => {
           </div>
         </div>
       </div>
-
       <!-- cajas -->
     </div>
   </div>

@@ -7,13 +7,14 @@ import { usePlacesStore } from '@/stores/placesStore';
 import type { UpdateVote } from '@/types/restaurants.types';
 import MoreVoted from '@/components/atoms/restaurants/MoreVoted.vue';
 import { useAppStore } from '@/stores/appStore';
+import { useStringUtils } from '@/utils/strings';
+const { truncateDescription } = useStringUtils();
 const authStore = useAuthStore();
-const logout = () => authStore.logout();
 const placesStore = usePlacesStore();
 const appStore = useAppStore();
+const logout = () => authStore.logout();
 const up = ref<number>(0);
 const down = ref<number>(0);
-
 
 onBeforeMount(async () => {
   authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
@@ -69,12 +70,11 @@ const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage
     <Sidebar :is-premium="authStore.isPremium" @logout="logout" />
     <div class="relative md:ml-64 bg-blueGray-100">
       <Navbar :username="authStore.userLogged.username" />
-      <!-- Header -->
       <MoreVoted :places="placesStore.places" />
       <div class="px-4 md:px-10 mx-auto w-full -m-8 pb-20 flex flex-wrap items-center">
         <!-- cajas -->
         <div v-for="place in placesStore.places" :key="place._id"
-          class="w-full md:w-6/12 sm:w-12/12 lg:w-4/12 px-4 flex relative">
+          class="w-full md:w-6/12 sm:w-12/12 lg:w-4/12 px-4 flex relative min-h-[568px]">
           <div class="absolute top-5 right-6 z-10 text-black">
             <a class="cursor-pointer" title="Voto a favor" @click.prevent="voteUp(place._id, place.enabled)">
               <span class="p-4 bg-white rounded-md text-green-700 font-bold">👍🏻 {{ place.voteUp
@@ -93,7 +93,7 @@ const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage
                 <polygon points="-30,95 583,95 583,65" class="text-green-600 fill-current"></polygon>
               </svg>
               <h4 class="text-xl font-bold text-white">{{ place.name }}</h4>
-              <p class="text-md font-light mt-2 text-white">{{ place.description }}</p>
+              <p class="text-md font-light mt-2 text-white">{{ truncateDescription(place.description, 170) }}</p>
             </blockquote>
             <div class="flex flex-wrap items-center mx-auto mb-4">
               <a v-if="place.web" :href="place.web" target="_blank"
@@ -109,7 +109,6 @@ const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage
             </div>
           </div>
         </div>
-
         <!-- cajas -->
       </div>
     </div>
