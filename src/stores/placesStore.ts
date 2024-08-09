@@ -2,25 +2,19 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { PostRestaurant, Restaurants, UpdateVote } from '@/types/restaurants.types';
 import { usePlaces } from '@/composables/usePlaces';
+import { useAppStore } from './appStore';
 
 export const usePlacesStore = defineStore(
   'placesStore',
   () => {
+    const appStore = useAppStore();
     const places = ref<Restaurants[]>([]);
     const allPlaces = ref<Restaurants[]>([]);
     const newPlace = ref<Restaurants>();
-    const messageError = ref<string>('');
     const isLoadingPlaces = ref<boolean>(false);
     const isPatchingPlace = ref<boolean>(false);
     const isSaving = ref<boolean>(false);
     const isDeleting = ref<boolean>(false);
-    const headers: { title: string; width: string }[] = [
-      { title: 'Nombre', width: 'w-[300px]' },
-      { title: 'Votos 👍', width: 'w-[100px]' },
-      { title: 'Usuarios 👍', width: 'w-[300px]' },
-      { title: 'Votos 👎', width: 'w-[100px]' },
-      { title: 'Usuarios 👎', width: 'w-[300px]' },
-    ];
     const {
       getPlaces,
       getRestaurantById,
@@ -85,7 +79,7 @@ export const usePlacesStore = defineStore(
         isPatchingPlace.value = true;
         const respuesta = await patchPlace(restaurant);
         if (respuesta.data.error) {
-          errorAVoidDuplicates(respuesta.data.error);
+          appStore.setNotifyMessage(respuesta.data.error, true);
           isPatchingPlace.value = false;
         }
       } catch (error) {
@@ -100,7 +94,7 @@ export const usePlacesStore = defineStore(
         isLoadingPlaces.value = true;
         const respuesta = await patchVoteById(data);
         if (respuesta.data.error) {
-          errorAVoidDuplicates(respuesta.data.error);
+          appStore.setNotifyMessage(respuesta.data.error, true);
           isLoadingPlaces.value = false;
         }
       } catch (error) {
@@ -116,7 +110,7 @@ export const usePlacesStore = defineStore(
         isLoadingPlaces.value = true;
         const respuesta = await patchPlaceVisibilityById(data);
         if (respuesta.data.error) {
-          errorAVoidDuplicates(respuesta.data.error);
+          appStore.setNotifyMessage(respuesta.data.error, true);
           isLoadingPlaces.value = false;
         }
       } catch (error) {
@@ -133,7 +127,7 @@ export const usePlacesStore = defineStore(
         isLoadingPlaces.value = true;
         const respuesta = await patchPlaceDiscardedById(data);
         if (respuesta.data.error) {
-          errorAVoidDuplicates(respuesta.data.error);
+          appStore.setNotifyMessage(respuesta.data.error, true);
           isLoadingPlaces.value = false;
         }
       } catch (error) {
@@ -152,7 +146,7 @@ export const usePlacesStore = defineStore(
         if (respuesta.data.error) {
           isDeleting.value = false;
           isLoadingPlaces.value = false;
-          errorAVoidDuplicates(respuesta.data.error);
+          appStore.setNotifyMessage(respuesta.data.error, true);
         }
       } catch (error) {
         console.log(error);
@@ -170,7 +164,7 @@ export const usePlacesStore = defineStore(
         isLoadingPlaces.value = true;
         const respuesta = await getRestaurantById(idPlace);
         if (respuesta.data.error) {
-          errorAVoidDuplicates(respuesta.data.error);
+          appStore.setNotifyMessage(respuesta.data.error, true);
           isLoadingPlaces.value = false;
         }
         return respuesta;
@@ -180,16 +174,10 @@ export const usePlacesStore = defineStore(
         isLoadingPlaces.value = false;
       }
     };
-    const errorAVoidDuplicates = (msg: string) => {
-      messageError.value = msg;
-      setTimeout(() => {
-        messageError.value = '';
-      }, 5000);
-    };
+
     return {
       allPlaces,
       deleteById,
-      headers,
       isLoadingPlaces,
       isPatchingPlace,
       isSaving,
@@ -197,7 +185,6 @@ export const usePlacesStore = defineStore(
       loadAllPlaces,
       loadPlaces,
       loadPlaceNotDiscarded,
-      messageError,
       newPlace,
       patchDiscarded,
       patchPlaceById,
