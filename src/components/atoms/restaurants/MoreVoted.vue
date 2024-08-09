@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Restaurants } from '@/types/restaurants.types';
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
 
 const props = defineProps<{
   places: Restaurants[];
@@ -40,6 +40,13 @@ const getBarra = (votesUp: number, users: string[], style = false) => {
   if (style) return `width:${String(total)}%`
   else return `${String(total)}%`
 }
+
+watch(
+  () => props.places,
+  () => {
+    firstPlaces();
+  }
+);
 </script>
 <template>
   <div class="relative bg-green-600 md:pt-32 pb-32 pt-12">
@@ -53,7 +60,7 @@ const getBarra = (votesUp: number, users: string[], style = false) => {
                 <div class="flex flex-wrap items-center">
                   <div class="relative w-full px-2 max-w-full flex-grow flex-1">
                     <h3 class="font-semibold text-base text-blueGray-700">
-                      Top 3 restaurantes más votados
+                      {{ !seAll ? 'Top 3 restaurantes más votados' : 'Todos los restaurantes' }}
                     </h3>
                   </div>
                   <div class="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
@@ -81,11 +88,15 @@ const getBarra = (votesUp: number, users: string[], style = false) => {
                       </th>
                       <th
                         class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                        Porcentaje votos a favor
+                        Porcentaje de votos a favor
                       </th>
                       <th
                         class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                        Web
+                        Votos a favor
+                      </th>
+                      <th
+                        class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                        Votos en contra
                       </th>
                     </tr>
                   </thead>
@@ -108,17 +119,22 @@ const getBarra = (votesUp: number, users: string[], style = false) => {
                         </div>
                       </td>
                       <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                        <a v-if="place.web" :href="place.web" target="_blank"
-                          class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1"
-                          style="transition:all .15s ease">
-                          Ver sitio web
-                        </a>
-                        <a v-if="place.street" :href="place.street" target="_blank"
-                          class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1"
-                          style="transition:all .15s ease">
-                          Google Maps
-                        </a>
-                        <p v-else> Sin web </p>
+                        <template v-if="place.voteOk.length">
+                          <span v-for="(user, i) in place.voteOk" :key="`${user}_${i}`" :title="user"
+                            class="inline-flex items-center justify-center w-3 h-3 p-3 ms-1 text-sm font-medium text-white bg-green-500 rounded-full">
+                            {{ user.substring(0, 2) }}
+                          </span>
+                        </template>
+                        <p v-else> Sin votos a favor </p>
+                      </td>
+                      <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                        <template v-if="place.voteOk.length">
+                          <span v-for="(user, i) in place.voteOk" :key="`${i}_${user}`" :title="user"
+                            class="inline-flex items-center justify-center w-3 h-3 p-3 ms-1 text-sm font-medium text-white bg-green-500 rounded-full">
+                            {{ user.substring(0, 2) }}
+                          </span>
+                        </template>
+                        <p v-else> Sin votos en contra </p>
                       </td>
                     </tr>
                   </tbody>
