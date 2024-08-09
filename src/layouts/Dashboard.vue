@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
 import Navbar from '@/components/atoms/Navbar.vue';
 import Sidebar from '@/components/atoms/Sidebar.vue';
@@ -8,10 +8,12 @@ import type { UpdateVote } from '@/types/restaurants.types';
 import MoreVoted from '@/components/atoms/restaurants/MoreVoted.vue';
 import { useAppStore } from '@/stores/appStore';
 import { useStringUtils } from '@/utils/strings';
+import { useRouter } from 'vue-router';
 const { truncateDescription } = useStringUtils();
 const authStore = useAuthStore();
 const placesStore = usePlacesStore();
 const appStore = useAppStore();
+const router = useRouter();
 const logout = () => authStore.logout();
 const up = ref<number>(0);
 const down = ref<number>(0);
@@ -62,8 +64,16 @@ const updateVote = async (data: { idPlace: string; votes: UpdateVote }) => {
     }
   }
   await placesStore.patchVote(dataToUpdate);
+  authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
 };
 const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage(message, isError);
+
+watch(
+  () => authStore.isLoggedIn,
+  () => {
+    if (useAuthStore().isLoggedIn === false) router.push('/login');
+  },
+);
 </script>
 <template>
   <div class="h-full">
