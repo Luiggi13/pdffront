@@ -20,3 +20,9 @@ export type UserProfileResponse = {
     votes: number;
   };
 };
+
+export type GenericUser = Pick<UserProfile, 'name' | 'username' | 'isPremium'> & {
+  _id: string;
+  votes: number[];
+  teams: number;
+};

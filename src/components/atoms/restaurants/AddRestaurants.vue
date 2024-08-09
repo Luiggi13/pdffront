@@ -7,15 +7,23 @@ import type { PostRestaurant } from '@/types/restaurants.types';
 import { onBeforeMount, ref } from 'vue';
 import { useAppStore } from '@/stores/appStore';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
 
 const authStore = useAuthStore();
 const appStore = useAppStore();
 const placesStore = usePlacesStore();
 const router = useRouter();
+const userStore = useUserStore();
 
 onBeforeMount(async () => {
+  getAllUsers();
   loadPremiumPlaces();
 });
+
+const getAllUsers = async () => {
+  await userStore.loadUsers();
+  formValue.value.users = userStore.users.map((user) => user.username);
+}
 
 const loadPremiumPlaces = async () => authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
 
@@ -29,11 +37,7 @@ const formValue = ref<PostRestaurant>({
   web: "",
   voteUp: 0,
   voteDown: 0,
-  users: [
-    "Christian",
-    "Ester",
-    "Mariana",
-    "Elena"],
+  users: [],
   voteKo: [],
   voteOk: [],
   enabled: true,
