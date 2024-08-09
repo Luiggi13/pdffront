@@ -37,9 +37,10 @@ export const menusApp: RouteRecordRaw[] = [
       {
         path: '',
         name: 'restaurants',
-        component: Restaurants,
+        component: DeleteRestaurants,
         beforeEnter: () => {
           if (useAuthStore().isLoggedIn === false) router.push('/login');
+          if (useAuthStore().isPremium === false) router.push('/dashboard');
         },
       },
       {
@@ -64,8 +65,8 @@ export const menusApp: RouteRecordRaw[] = [
         component: EditRestaurants,
       },
       {
-        path: '/delete',
-        name: 'delete-restaurant',
+        path: '/actions',
+        name: 'actions-restaurant',
         component: DeleteRestaurants,
         beforeEnter: () => {
           if (useAuthStore().isLoggedIn === false || !useAuthStore().isPremium) router.push('/dashboard');

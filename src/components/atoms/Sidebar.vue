@@ -69,37 +69,21 @@ onBeforeMount(() => {
         <!-- Navigation -->
         <ul class="md:flex-col md:min-w-full flex flex-col list-none">
           <li class="items-center">
-            <a :class="{ 'text-green-500': isActive('/dashboard') }"
-              class="hover:text-green-600 text-xs uppercase py-3 font-bold block"><i
-                class="fas fa-tv opacity-75 mr-2 text-sm"></i>
-              <router-link to="/dashboard">Dashboard</router-link>
-            </a>
+            <router-link :class="{ 'text-green-500': isActive('/dashboard') }"
+              class="hover:text-green-600 text-xs uppercase py-3 font-bold block" to="/dashboard">
+              <i class="fas fa-tv opacity-75 mr-2 text-sm"></i>Dashboard</router-link>
           </li>
           <li v-if="props.isPremium" class="items-center">
-            <a :class="{ 'text-green-500': isActive('/restaurants') }"
-              class="hover:text-green-600 text-xs uppercase py-3 font-bold block"><i
-                class="fas fa-utensils text-blueGray-400 mr-2 text-sm"></i>
-              <router-link to="/restaurants" class="relative">Restaurants
-                <div class="absolute w-3 h-3 -top-1 left-[85px]">
-                  <span
-                    class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-white bg-green-500 rounded-full">{{
+            <router-link :class="{ 'text-green-500': isActive('/restaurants') }"
+              class="hover:text-green-600 text-xs uppercase py-3 font-bold block relative" to="/restaurants">
+              <i class="fas fa-utensils text-blueGray-400 mr-2 text-sm"></i>
+              Restaurants
+              <div class="absolute w-3 h-3 top-2 left-28">
+                <span
+                  class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-white bg-green-500 rounded-full">{{
           usePlacesStore().places.length }}</span>
-                </div>
-
-
-              </router-link></a>
-            <ul class="md:flex-col md:min-w-full flex flex-col list-none">
-              <li class="hover:text-green-600 text-xs py-1 block pl-5">
-                <router-link to="/add"><i class="fa-regular fa-plus pr-2"></i>Add restaurant <i
-                    class="fa-solid fa-crown text-yellow-400 absolute right-2 top[0.15rem]"></i></router-link>
-              </li>
-              <li class="hover:text-green-600 text-xs py-1 block pl-5">
-                <router-link class="relative w-full block" to="/delete"><i
-                    class="fa-solid fa-trash text-red-600 pr-2"></i>Delete
-                  restaurant <i
-                    class="fa-solid fa-crown text-yellow-400 absolute right-2 top[0.15rem]"></i></router-link>
-              </li>
-            </ul>
+              </div>
+            </router-link>
           </li>
         </ul>
         <hr class="my-4 md:min-w-full" />

@@ -7,9 +7,11 @@ import Navbar from '@/components/atoms/Navbar.vue';
 import type { DeleteRestaurant } from '@/types/restaurants.types';
 import TableRestaurants from './TableRestaurants.vue';
 import ModalDeleteRestaurant from '@/components/atoms/modals/ModalDeleteRestaurant.vue';
+import { useRouter } from 'vue-router';
 
 const appStore = useAppStore();
 const authStore = useAuthStore();
+const router = useRouter();
 const placesStore = usePlacesStore();
 const statusModal = ref<boolean>(false);
 const placeToDelete = ref<DeleteRestaurant>({
@@ -18,7 +20,7 @@ const placeToDelete = ref<DeleteRestaurant>({
 });
 
 onBeforeMount(async () => {
-  authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
+  await placesStore.loadPlaceNotDiscarded();
 });
 
 const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage(message, isError);
@@ -45,6 +47,10 @@ const deletePlace = (restaurant: DeleteRestaurant) => {
 const closeModal = (close: boolean) => {
   statusModal.value = !close;
 }
+
+const editPlace = (placeId: string) => {
+  router.push({ path: `/edit/${placeId}` });
+}
 </script>
 
 <template>
@@ -58,11 +64,12 @@ const closeModal = (close: boolean) => {
               <div class="relative flex flex-col min-w-0 break-words w-full mb-6">
                 <div class="rounded-t mb-0 py-3 border-0">
                   <h3 class="font-semibold text-base text-blueGray-700 w-full border-b-[1px] pb-2">
-                    Eliminar restaurante
+                    Listado de restaurantes
                   </h3>
                 </div>
                 <div class="w-full overflow-x-auto">
-                  <TableRestaurants :places="placesStore.places" @delete-restaurant="deletePlace" />
+                  <TableRestaurants :places="placesStore.places" @delete-restaurant="deletePlace"
+                    @edit-restaurant="editPlace" />
                   <ModalDeleteRestaurant :is-visible="statusModal" :place="placeToDelete" @delete-restaurant="submit"
                     @close="closeModal" />
                 </div>

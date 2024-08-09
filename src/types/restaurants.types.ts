@@ -20,3 +20,11 @@ export type Restaurants = {
 export type UpdateVote = Pick<Restaurants, 'voteUp' | 'voteDown' | 'username'>;
 export type PostRestaurant = Omit<Restaurants, '_id'>;
 export type DeleteRestaurant = Pick<Restaurants, '_id' | 'name'>;
+
+export enum EnumActionRestaurant {
+  DELETE = 'Delete',
+  EDIT = 'Edit',
+}
+
+export const RULE_STATUS = ['Info', 'Denied', 'Accept', 'Deny', 'Reject'] as const;
+export type RuleStatus = (typeof RULE_STATUS)[number];
