@@ -6,9 +6,11 @@ import Sidebar from '@/components/atoms/Sidebar.vue';
 import { usePlacesStore } from '@/stores/placesStore';
 import type { UpdateVote } from '@/types/restaurants.types';
 import MoreVoted from '@/components/atoms/restaurants/MoreVoted.vue';
+import Overlay from '@/components/atoms/Overlay/Overlay.vue';
 import { useAppStore } from '@/stores/appStore';
 import { useStringUtils } from '@/utils/strings';
 import { useRouter } from 'vue-router';
+import { computed } from 'vue';
 const { truncateDescription } = useStringUtils();
 const authStore = useAuthStore();
 const placesStore = usePlacesStore();
@@ -67,7 +69,7 @@ const updateVote = async (data: { idPlace: string; votes: UpdateVote }) => {
   authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
 };
 const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage(message, isError);
-
+const isLoading = computed(() => (placesStore.isLoadingPlaces || placesStore.isPatchingPlace));
 watch(
   () => authStore.isLoggedIn,
   () => {
@@ -76,6 +78,7 @@ watch(
 );
 </script>
 <template>
+  <Overlay :is-visible="isLoading" />
   <div class="h-full">
     <Sidebar :is-premium="authStore.isPremium" @logout="logout" />
     <div class="relative md:ml-64 bg-blueGray-100">

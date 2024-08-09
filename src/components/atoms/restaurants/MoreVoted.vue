@@ -33,7 +33,7 @@ const calculateApprovalPercentage = (votesUp: number, users: string[]): number =
   const totalUsers = users.length;
   const percentage = (votesUp / totalUsers) * 100;
 
-  return percentage;
+  return parseFloat(percentage.toFixed(2));
 }
 const getBarra = (votesUp: number, users: string[], style = false) => {
   const total = calculateApprovalPercentage(votesUp, users);
@@ -121,20 +121,20 @@ watch(
                       <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                         <template v-if="place.voteOk.length">
                           <span v-for="(user, i) in place.voteOk" :key="`${user}_${i}`" :title="user"
-                            class="inline-flex items-center justify-center w-3 h-3 p-3 ms-1 text-sm font-medium text-white bg-green-500 rounded-full">
+                            class="inline-flex items-center justify-center w-3 h-3 p-3 ms-1 text-sm font-medium text-white bg-green-500 rounded-full cursor-default">
                             {{ user.substring(0, 2) }}
                           </span>
                         </template>
                         <p v-else> Sin votos a favor </p>
                       </td>
                       <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                        <template v-if="place.voteOk.length">
-                          <span v-for="(user, i) in place.voteOk" :key="`${i}_${user}`" :title="user"
-                            class="inline-flex items-center justify-center w-3 h-3 p-3 ms-1 text-sm font-medium text-white bg-green-500 rounded-full">
+                        <template v-if="place.voteKo.length">
+                          <span v-for="(user, i) in place.voteKo" :key="`${i}_${user}`" :title="user"
+                            class="inline-flex items-center justify-center w-3 h-3 p-3 ms-1 text-sm font-medium text-white bg-green-500 rounded-full cursor-default">
                             {{ user.substring(0, 2) }}
                           </span>
                         </template>
-                        <p v-else> Sin votos en contra </p>
+                        <p v-else> Sin votos en contra</p>
                       </td>
                     </tr>
                   </tbody>
