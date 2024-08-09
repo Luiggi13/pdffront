@@ -5,7 +5,6 @@ import RestaurantLayout from '@/layouts/RestaurantLayout.vue';
 import Restaurants from '@/components/atoms/restaurants/Restaurants.vue';
 import AddRestaurants from '@/components/atoms/restaurants/AddRestaurants.vue';
 import EditRestaurants from '@/components/atoms/restaurants/EditRestaurants.vue';
-import DeleteRestaurants from '@/components/atoms/restaurants/DeleteRestaurants.vue';
 import { useAuthStore } from '@/stores/authStore';
 
 export const menusApp: RouteRecordRaw[] = [

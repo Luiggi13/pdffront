@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import router from '@/router';
 import type { Restaurants } from '@/types/restaurants.types';
+import { useRouter } from 'vue-router';
 import type { Header } from "vue3-easy-data-table";
 
 const props = defineProps<{
@@ -18,6 +18,7 @@ const headers: readonly Header[] = [
   { text: "Status", value: "enabled" },
   { text: "Actions", value: "actions", width: 220 }
 ];
+const router = useRouter();
 const newRestaurant = () => router.push('/add');
 </script>
 <template>

@@ -6,10 +6,12 @@ import Loading from '@/components/atoms/LoadingAtom.vue';
 import type { PostRestaurant } from '@/types/restaurants.types';
 import { onBeforeMount, ref } from 'vue';
 import { useAppStore } from '@/stores/appStore';
+import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
 const appStore = useAppStore();
 const placesStore = usePlacesStore();
+const router = useRouter();
 
 onBeforeMount(async () => {
   loadPremiumPlaces();
@@ -72,7 +74,7 @@ const submit = async () => {
   await placesStore.savePlace(formValue.value);
   mensaje(`Restaurante "${formValue.value.name} ha sido creado correctamente"`, false);
   resetForm();
-  loadPremiumPlaces();
+  router.push('/restaurants');
 }
 </script>
 
