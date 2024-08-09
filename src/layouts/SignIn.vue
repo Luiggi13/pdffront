@@ -29,7 +29,8 @@ const isEnabledPage = computed(() => import.meta.env.VITE_API_ENABLED === 'false
   <div class="flex min-h-full flex-1 flex-col justify-center lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
       <img :class="{ 'h-16 hover:h-24': !isEnabledPage, 'animate-pulse': isEnabledPage, }"
-        class="mx-auto w-auto rounded-full hover:transition-all transition-all" src="../assets/cbre.png" alt="CBRE" />
+        class="mx-auto w-auto rounded-full hover:transition-all transition-all" src="../assets/cbrelogin.png"
+        alt="CBRE" />
       <h2 v-if="!isEnabledPage" class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
         Iniciar sesión
       </h2>
