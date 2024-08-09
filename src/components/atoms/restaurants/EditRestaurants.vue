@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { onBeforeMount, reactive, ref } from 'vue';
+import { computed, onBeforeMount, reactive, ref } from 'vue';
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import { usePlacesStore } from '@/stores/placesStore';
 import { useRoute, useRouter } from 'vue-router';
-import Loading from '@/components/atoms/LoadingAtom.vue';
 import Navbar from '@/components/atoms/Navbar.vue';
 import type { Restaurants } from '@/types/restaurants.types';
+import Overlay from '@/components/atoms/Overlay/Overlay.vue';
 
 const appStore = useAppStore();
 const authStore = useAuthStore();
@@ -79,9 +79,11 @@ const submit = async () => {
   const exist = placesStore.places.find((restaurant) => restaurant.name.toLocaleLowerCase() === formValue.name.toLocaleLowerCase());
   if (exist?._id) return mensaje(`Restaurante "${formValue.name} ya existe"`, true);
 
+  textLoader.value = 'Actualizando restaurante';
   await placesStore.patchPlaceById(formValue);
   mensaje(`Restaurante "${formValue.name} ha sido actualizado correctamente"`, false);
   resetForm();
+  router.push({ path: `/restaurants` });
 }
 
 const fillRestaurant = () => {
@@ -107,10 +109,13 @@ const fillRestaurant = () => {
   });
 };
 
-
+const isLoading = computed(() => (placesStore.isLoadingPlaces || placesStore.isPatchingPlace));
+const textLoader = ref<string>('Cargando')
 </script>
 
 <template>
+  <Overlay :is-visible="isLoading" :text="textLoader" />
+
   <div class="relative md:ml-64 bg-blueGray-100">
     <Navbar :username="authStore.userLogged.username" />
     <!-- Header -->
@@ -197,13 +202,10 @@ const fillRestaurant = () => {
                             </label>
                           </div>
                         </div>
-                        <button v-if="!placesStore.isSaving" @click.prevent="submit"
+                        <button v-if="!placesStore.isPatchingPlace" @click.prevent="submit"
                           :class="{ 'bg-[#ccc] hover:bg-[#ccc] focus:ring-[#ccc] cursor-not-allowed focus:outline-none disabled:opacity-75': !isSubmitEnabled() }"
                           class="w-full text-white bg-[#19690b] hover:bg-[#37762c] focus:ring-4 focus:outline-none focus:ring-[#19690b] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#19690b] dark:hover:bg-[#19690b] dark:focus:ring-[#19690b]"
                           :disabled="!isSubmitEnabled()">Actualizar restaurante</button>
-                        <div v-else class="flex justify-center">
-                          <Loading :is-loading="placesStore.isSaving" />
-                        </div>
                       </form>
                     </div>
                     <!-- cajas -->

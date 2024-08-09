@@ -2,9 +2,9 @@
 import { useAuthStore } from '@/stores/authStore';
 import { usePlacesStore } from '@/stores/placesStore';
 import Navbar from '@/components/atoms/Navbar.vue';
-import Loading from '@/components/atoms/LoadingAtom.vue';
+import Overlay from '@/components/atoms/Overlay/Overlay.vue';
 import type { PostRestaurant } from '@/types/restaurants.types';
-import { onBeforeMount, ref } from 'vue';
+import { computed, onBeforeMount, ref } from 'vue';
 import { useAppStore } from '@/stores/appStore';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
@@ -75,14 +75,18 @@ const submit = async () => {
   const exist = placesStore.places.find((restaurant) => restaurant.name.toLocaleLowerCase().includes(formValue.value.name.toLocaleLowerCase()));
   if (exist?._id) return mensaje(`Restaurante "${formValue.value.name} ya existe"`, true);
 
+  textLoader.value = 'Creando restaurante';
   await placesStore.savePlace(formValue.value);
   mensaje(`Restaurante "${formValue.value.name} ha sido creado correctamente"`, false);
   resetForm();
   router.push('/restaurants');
 }
+const isLoading = computed(() => (placesStore.isLoadingPlaces || placesStore.isSaving));
+const textLoader = ref<string>('Cargando')
 </script>
 
 <template>
+  <Overlay :is-visible="isLoading" :text="textLoader" />
   <div class="relative md:ml-64 bg-blueGray-100">
     <Navbar :username="authStore.userLogged.username" />
     <!-- Header -->
@@ -164,9 +168,6 @@ const submit = async () => {
                           :class="{ 'bg-[#ccc] hover:bg-[#ccc] focus:ring-[#ccc] cursor-not-allowed focus:outline-none disabled:opacity-75': !isSubmitEnabled() }"
                           class="w-full text-white bg-[#19690b] hover:bg-[#37762c] focus:ring-4 focus:outline-none focus:ring-[#19690b] font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#19690b] dark:hover:bg-[#19690b] dark:focus:ring-[#19690b]"
                           :disabled="!isSubmitEnabled()">Crear restaurante</button>
-                        <div v-else class="flex justify-center">
-                          <Loading :is-loading="placesStore.isSaving" />
-                        </div>
                       </form>
                     </div>
                     <!-- cajas -->

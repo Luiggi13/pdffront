@@ -1,13 +1,14 @@
 <script lang="ts" setup>
-import { onBeforeMount, ref } from 'vue';
+import { computed, onBeforeMount, ref, watch } from 'vue';
 import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import { usePlacesStore } from '@/stores/placesStore';
-import Navbar from '@/components/atoms/Navbar.vue';
-import type { DeleteRestaurant } from '@/types/restaurants.types';
-import TableRestaurants from './TableRestaurants.vue';
-import ModalDeleteRestaurant from '@/components/atoms/modals/ModalDeleteRestaurant.vue';
 import { useRouter } from 'vue-router';
+import ModalDeleteRestaurant from '@/components/atoms/modals/ModalDeleteRestaurant.vue';
+import Navbar from '@/components/atoms/Navbar.vue';
+import Overlay from '@/components/atoms/Overlay/Overlay.vue';
+import TableRestaurants from './TableRestaurants.vue';
+import type { DeleteRestaurant } from '@/types/restaurants.types';
 
 const appStore = useAppStore();
 const authStore = useAuthStore();
@@ -35,9 +36,10 @@ const checkIfPlaceExist = async () => {
 
 const submit = async () => {
   checkIfPlaceExist();
+  textLoader.value = 'Eliminando restaurante';
+  statusModal.value = !statusModal.value;
   await placesStore.deleteById(placeToDelete.value._id)
   mensaje(`Restaurante ${placeToDelete.value.name} ha sido eliminado correctamente`, false);
-  return statusModal.value = !statusModal.value;
 }
 
 const deletePlace = (restaurant: DeleteRestaurant) => {
@@ -51,9 +53,12 @@ const closeModal = (close: boolean) => {
 const editPlace = (placeId: string) => {
   router.push({ path: `/edit/${placeId}` });
 }
+const textLoader = ref<string>('Cargando')
+const isLoading = computed(() => placesStore.isLoadingPlaces || placesStore.isDeleting);
 </script>
 
 <template>
+  <Overlay :is-visible="isLoading" :text="textLoader" />
   <div class="relative md:ml-64 bg-blueGray-100">
     <Navbar :username="authStore.userLogged.username" />
     <div class="relative bg-white pt-12">

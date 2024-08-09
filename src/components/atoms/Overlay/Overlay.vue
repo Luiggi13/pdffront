@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+
 const props = defineProps<{
   isVisible: boolean;
+  text?: string;
 }>();
+
+const loadingText = computed(() => props.text ?? 'Cargando...')
 </script>
 <template>
   <div v-if="props.isVisible" class="overlay">
@@ -9,7 +14,7 @@ const props = defineProps<{
     <div class="overlay__inner">
       <div class="overlay__content">
         <span class="spinner"></span>
-        <span class="text-white">Cargando</span>
+        <span class="text-white"> {{ loadingText }} </span>
       </div>
     </div>
   </div>

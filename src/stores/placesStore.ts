@@ -13,6 +13,7 @@ export const usePlacesStore = defineStore(
     const isLoadingPlaces = ref<boolean>(false);
     const isPatchingPlace = ref<boolean>(false);
     const isSaving = ref<boolean>(false);
+    const isDeleting = ref<boolean>(false);
     const headers: { title: string; width: string }[] = [
       { title: 'Nombre', width: 'w-[300px]' },
       { title: 'Votos 👍', width: 'w-[100px]' },
@@ -146,15 +147,18 @@ export const usePlacesStore = defineStore(
     };
     const deleteById = async (idPlace: string) => {
       try {
-        isLoadingPlaces.value = true;
+        isDeleting.value = true;
         const respuesta = await deletePlaceById(idPlace);
         if (respuesta.data.error) {
-          errorAVoidDuplicates(respuesta.data.error);
+          isDeleting.value = false;
           isLoadingPlaces.value = false;
+          errorAVoidDuplicates(respuesta.data.error);
         }
       } catch (error) {
         console.log(error);
       } finally {
+        isDeleting.value = false;
+        isLoadingPlaces.value = true;
         const resp = await getPlaces();
         places.value = resp.data.filter((place) => place.enabled);
         allPlaces.value = resp.data;
@@ -189,6 +193,7 @@ export const usePlacesStore = defineStore(
       isLoadingPlaces,
       isPatchingPlace,
       isSaving,
+      isDeleting,
       loadAllPlaces,
       loadPlaces,
       loadPlaceNotDiscarded,
