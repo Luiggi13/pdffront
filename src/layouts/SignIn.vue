@@ -23,18 +23,19 @@ const loginUsers = async () => {
 onBeforeMount(() => {
   if (authStore.isLoggedIn) navigateToHome();
 })
-
+const isEnabledPage = computed(() => import.meta.env.VITE_API_ENABLED === 'false')
 </script>
 <template>
   <div class="flex min-h-full flex-1 flex-col justify-center lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-      <img class="mx-auto h-16 w-auto rounded-full hover:h-24 hover:transition-all transition-all"
-        src="../assets/cbre.png" alt="CBRE" />
-      <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Iniciar sesión
+      <img :class="{ 'h-16 hover:h-24': !isEnabledPage, 'animate-pulse': isEnabledPage, }"
+        class="mx-auto w-auto rounded-full hover:transition-all transition-all" src="../assets/cbre.png" alt="CBRE" />
+      <h2 v-if="!isEnabledPage" class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+        Iniciar sesión
       </h2>
     </div>
 
-    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+    <div v-if="!isEnabledPage" class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
       <form class="space-y-6" action="#" method="POST">
         <div>
           <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Usuario</label>
@@ -47,7 +48,7 @@ onBeforeMount(() => {
 
         <div>
           <div class="flex items-center justify-between">
-            <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Password</label>
+            <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Contraseña</label>
           </div>
           <div class="mt-2">
             <input id="password" name="password" type="password" required="true" v-model="userProfile.password"
@@ -58,8 +59,7 @@ onBeforeMount(() => {
         <div>
           <button type="submit"
             class="flex w-full justify-center rounded-md bg-green-900 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all disabled:bg-gray-500"
-            :disabled="isEnabled" @click="loginUsers">Sign
-            in</button>
+            :disabled="isEnabled" @click="loginUsers">Iniciar sesión</button>
         </div>
       </form>
     </div>
