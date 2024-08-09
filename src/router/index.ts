@@ -19,11 +19,17 @@ export const menusApp: RouteRecordRaw[] = [
     path: '/login',
     name: 'login',
     component: SignIn,
+    meta: {
+      title: 'Christmas Dinner 2024 🎁',
+    },
   },
   {
     path: '/dashboard',
     name: 'dashboard',
     component: Dashboard,
+    meta: {
+      title: 'Christmas Dinner 2024 - Dashboard',
+    },
     beforeEnter: () => {
       if (useAuthStore().isLoggedIn === false) router.push('/login');
     },
@@ -36,6 +42,9 @@ export const menusApp: RouteRecordRaw[] = [
         path: '',
         name: 'restaurants',
         component: Restaurants,
+        meta: {
+          title: 'Christmas Dinner 2024 - Restaurantes',
+        },
         beforeEnter: () => {
           if (useAuthStore().isLoggedIn === false) router.push('/login');
           if (useAuthStore().isPremium === false) router.push('/dashboard');
@@ -45,6 +54,9 @@ export const menusApp: RouteRecordRaw[] = [
         path: '/add',
         name: 'add-restaurant',
         component: AddRestaurants,
+        meta: {
+          title: 'Christmas Dinner 2024 - Nuevo restaurante',
+        },
         beforeEnter: () => {
           if (useAuthStore().isLoggedIn === false) router.push('/login');
         },
@@ -53,23 +65,24 @@ export const menusApp: RouteRecordRaw[] = [
         path: '/edit/:id',
         name: 'edit-restaurant-single',
         component: EditRestaurants,
+        meta: {
+          title: 'Christmas Dinner 2024 - Editar restaurante',
+        },
       },
     ],
   },
   {
-    path: '/about',
-    name: 'about',
-    component: () => import('../views/AboutView.vue'),
-  },
-  {
     path: '/:pathMatch(.*)*',
-    component: () => import('../views/HomeView.vue'),
+    component: () => import('../layouts/Dashboard.vue'),
     beforeEnter: () => (window.location.pathname = import.meta.env.BASE_URL),
   },
 ];
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: menusApp,
+});
+router.beforeEach((to, from) => {
+  document.title = String(to.meta.title) ?? 'Christmas Dinner 2024 🎁';
 });
 
 export default router;

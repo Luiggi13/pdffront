@@ -106,7 +106,7 @@ watch(
               <p class="text-md font-light mt-2 text-white">{{ truncateDescription(place.description, 170) }}</p>
             </blockquote>
             <div class="flex flex-wrap items-center mx-auto mb-4">
-              <a v-if="place.web" :href="place.web" target="_blank"
+              <a v-if="place.web" :href="place.web" target="_blank" :title="place.web"
                 class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1"
                 style="transition:all .15s ease">
                 Web
