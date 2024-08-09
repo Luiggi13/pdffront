@@ -19,7 +19,7 @@ onBeforeMount(async () => {
   authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
   restaurantToEdit.value = placesStore.places.find((restaurant) => restaurant._id === route.params.id);
   if (restaurantToEdit.value === undefined) {
-    mensaje(`Restaurante con la id "${route.params.id} no existe"`, true);
+    mensaje(`El restaurante que busca no existe, seleccione otro de la lista`, true);
     router.push({ path: `/restaurants` });
   }
   else fillRestaurant();

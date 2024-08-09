@@ -1,64 +1,83 @@
 <script lang="ts" setup>
+import { onBeforeMount, ref } from 'vue';
+import { useAppStore } from '@/stores/appStore';
 import { useAuthStore } from '@/stores/authStore';
 import { usePlacesStore } from '@/stores/placesStore';
 import Navbar from '@/components/atoms/Navbar.vue';
-import { onBeforeMount } from 'vue';
+import type { DeleteRestaurant } from '@/types/restaurants.types';
+import TableRestaurants from './TableRestaurants.vue';
+import ModalDeleteRestaurant from '@/components/atoms/modals/ModalDeleteRestaurant.vue';
 import { useRouter } from 'vue-router';
-import { useStringUtils } from '@/utils/strings';
-import MoreVoted from './MoreVoted.vue';
 
+const appStore = useAppStore();
 const authStore = useAuthStore();
-const { truncateDescription } = useStringUtils();
-const placesStore = usePlacesStore();
 const router = useRouter();
-
-onBeforeMount(async () => {
-  authStore.isPremium ? await placesStore.loadPlaces() : await placesStore.loadPlaceNotDiscarded();
+const placesStore = usePlacesStore();
+const statusModal = ref<boolean>(false);
+const placeToDelete = ref<DeleteRestaurant>({
+  _id: '',
+  name: '',
 });
 
-const goToEdit = (idRestaurant: string) => {
-  router.push({ path: `/edit/${idRestaurant}` });
+onBeforeMount(async () => {
+  await placesStore.loadPlaceNotDiscarded();
+});
+
+const mensaje = (message: string, isError: boolean) => appStore.setNotifyMessage(message, isError);
+
+const checkIfPlaceExist = async () => {
+  const encontrado = await placesStore.restaurantById(placeToDelete.value._id);
+  if (!encontrado?.data._id) {
+    mensaje(`Restaurante "${encontrado?.data.name} no existe"`, true)
+    return statusModal.value = !statusModal.value;
+  };
+}
+
+const submit = async () => {
+  checkIfPlaceExist();
+  await placesStore.deleteById(placeToDelete.value._id)
+  mensaje(`Restaurante ${placeToDelete.value.name} ha sido eliminado correctamente`, false);
+  return statusModal.value = !statusModal.value;
+}
+
+const deletePlace = (restaurant: DeleteRestaurant) => {
+  statusModal.value = true;
+  placeToDelete.value = restaurant;
+}
+const closeModal = (close: boolean) => {
+  statusModal.value = !close;
+}
+
+const editPlace = (placeId: string) => {
+  router.push({ path: `/edit/${placeId}` });
 }
 </script>
 
 <template>
   <div class="relative md:ml-64 bg-blueGray-100">
     <Navbar :username="authStore.userLogged.username" />
-    <MoreVoted :places="placesStore.places" />
-    <div class="px-4 md:px-10 mx-auto w-full -m-8 pb-20 flex flex-wrap items-center">
-      <!-- cajas -->
-      <div v-for="place in placesStore.places" :key="place._id"
-        class="w-full md:w-6/12 sm:w-12/12 lg:w-4/12 px-4 flex relative min-h-[568px]">
-        <div class="absolute top-2 right-6 z-10 text-black">
-          <a class="cursor-pointer" @click.prevent="goToEdit(place._id)">
-            <i class="p-4 bg-white rounded-md fas fa-pen-to-square"></i>
-          </a>
-        </div>
-        <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-green-600">
-          <img :alt="place.name" :src="place.image" class="w-full align-middle rounded-t-lg" />
-          <blockquote class="relative p-8 mb-4 h-[320px]">
-            <svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 583 95"
-              class="absolute left-0 w-full block" style="height: 95px; top: -94px">
-              <polygon points="-30,95 583,95 583,65" class="text-green-600 fill-current"></polygon>
-            </svg>
-            <h4 class="text-xl font-bold text-white">{{ place.name }}</h4>
-            <p class="text-md font-light mt-2 text-white">{{ truncateDescription(place.description, 170) }}</p>
-          </blockquote>
-          <div class="flex flex-wrap items-center mx-auto mb-4">
-            <a v-if="place.web" :href="place.web" target="_blank"
-              class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1"
-              style="transition:all .15s ease">
-              Web
-            </a>
-            <a v-if="place.street" :href="place.street" target="_blank"
-              class="bg-indigo-500 text-white active:bg-indigo-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1"
-              style="transition:all .15s ease">
-              Google Maps
-            </a>
+    <div class="relative bg-white pt-12">
+      <div class="px-4 md:px-10 mx-auto w-full">
+        <div class="px-4 md:px-10 mx-auto w-full">
+          <div class="flex flex-wrap mt-5">
+            <div class="w-full xl:w-12/12 px-4">
+              <div class="relative flex flex-col min-w-0 break-words w-full mb-6">
+                <div class="rounded-t mb-0 py-3 border-0">
+                  <h3 class="font-semibold text-base text-blueGray-700 w-full border-b-[1px] pb-2">
+                    Listado de restaurantes
+                  </h3>
+                </div>
+                <div class="w-full overflow-x-auto">
+                  <TableRestaurants :places="placesStore.places" @delete-restaurant="deletePlace"
+                    @edit-restaurant="editPlace" />
+                  <ModalDeleteRestaurant :is-visible="statusModal" :place="placeToDelete" @delete-restaurant="submit"
+                    @close="closeModal" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <!-- cajas -->
     </div>
   </div>
 </template>

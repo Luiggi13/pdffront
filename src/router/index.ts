@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import SignIn from '@/layouts/SignIn.vue';
-import Inside from '@/layouts/Inside.vue';
 import Dashboard from '@/layouts/Dashboard.vue';
 import RestaurantLayout from '@/layouts/RestaurantLayout.vue';
 import Restaurants from '@/components/atoms/restaurants/Restaurants.vue';
@@ -37,7 +36,7 @@ export const menusApp: RouteRecordRaw[] = [
       {
         path: '',
         name: 'restaurants',
-        component: DeleteRestaurants,
+        component: Restaurants,
         beforeEnter: () => {
           if (useAuthStore().isLoggedIn === false) router.push('/login');
           if (useAuthStore().isPremium === false) router.push('/dashboard');
@@ -52,25 +51,9 @@ export const menusApp: RouteRecordRaw[] = [
         },
       },
       {
-        path: '/edit',
-        name: 'edit-restaurant',
-        component: EditRestaurants,
-        beforeEnter: () => {
-          if (useAuthStore().isLoggedIn === false) router.push('/login');
-        },
-      },
-      {
         path: '/edit/:id',
         name: 'edit-restaurant-single',
         component: EditRestaurants,
-      },
-      {
-        path: '/actions',
-        name: 'actions-restaurant',
-        component: DeleteRestaurants,
-        beforeEnter: () => {
-          if (useAuthStore().isLoggedIn === false || !useAuthStore().isPremium) router.push('/dashboard');
-        },
       },
     ],
   },

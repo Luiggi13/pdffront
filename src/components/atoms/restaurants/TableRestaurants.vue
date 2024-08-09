@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import router from '@/router';
 import type { Restaurants } from '@/types/restaurants.types';
 import type { Header } from "vue3-easy-data-table";
 
@@ -17,8 +18,18 @@ const headers: readonly Header[] = [
   { text: "Status", value: "enabled" },
   { text: "Actions", value: "actions", width: 220 }
 ];
+const newRestaurant = () => router.push('/add');
 </script>
 <template>
+  <div class="inline-flex w-full justify-end">
+    <button type="button"
+      class="mt-3 inline-flex w-full justify-center rounded-md bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset hover:bg-gray-50 sm:mt-0 sm:w-auto float-end"
+      @click="newRestaurant">
+      <span>
+        <i class="fas fa-plus"></i> Nuevo restaurante
+      </span>
+    </button>
+  </div>
   <div class="relative overflow-x-auto shadow-md sm:rounded-lg mt-5">
     <EasyDataTable :headers="headers" :items="props.places" :hide-footer="true" alternating>
       <template #item-enabled="item">
