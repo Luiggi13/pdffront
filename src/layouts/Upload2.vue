@@ -65,9 +65,10 @@ const uploadFile = async () => {
     formData.append("file", selectedFile.value);
 
     // Realizamos la solicitud POST
-    const response: AxiosResponse<{ message: string; size: string }> = await axios.post<{ message: string; size: string }>(API_ROUTES.uploadServer, formData, {
+    const response: AxiosResponse<{ message: string; size: string }> = await axios.post<{ message: string; size: string }>(API_ROUTES.upload, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
+        "Content-Length" : selectedFile.value.size
       },
     });
     lastLink.value = `https://pdf-csr8.onrender.com/ok/${response.data.size}`
