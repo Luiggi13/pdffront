@@ -5,6 +5,7 @@ export const API_ROUTES = {
   visibility: `/places/visible`,
   discarded: `/places/discarded`,
   upload: `http://localhost:1313/pdf/upload`,
+  uploadServer: `https://pdf-csr8.onrender.com/pdf/upload`,
   uploadFile: `http://localhost:1313/pdf/uploadfile`,
 };
 
