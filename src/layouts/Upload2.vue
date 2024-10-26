@@ -65,7 +65,7 @@ const uploadFile = async () => {
     formData.append("file", selectedFile.value);
 
     // Realizamos la solicitud POST
-    const response: AxiosResponse<{ message: string; size: string }> = await axios.post<{ message: string; size: string }>(API_ROUTES.upload, formData, {
+    const response: AxiosResponse<{ message: string; size: string }> = await axios.post<{ message: string; size: string }>(API_ROUTES.uploadServer, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
         "Content-Length" : selectedFile.value.size
