@@ -70,7 +70,7 @@ const uploadFile = async () => {
         "Content-Type": "multipart/form-data",
       },
     });
-    lastLink.value = `https://pdf-csr8.onrender.com/ok/${response.data.size}`
+    lastLink.value = `https://pdf-gray-eta.vercel.app/ok/${response.data.size}`
     console.log(response.data.size)
 
 
