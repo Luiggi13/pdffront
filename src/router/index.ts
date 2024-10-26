@@ -6,13 +6,22 @@ import Restaurants from '@/components/atoms/restaurants/Restaurants.vue';
 import AddRestaurants from '@/components/atoms/restaurants/AddRestaurants.vue';
 import EditRestaurants from '@/components/atoms/restaurants/EditRestaurants.vue';
 import { useAuthStore } from '@/stores/authStore';
+import Upload2 from '@/layouts/Upload2.vue';
 
 export const menusApp: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'home',
     redirect: () => {
-      return { path: '/login' };
+      return { path: '/upload' };
+    },
+  },
+  {
+    path: '/upload',
+    name: 'upload',
+    component: Upload2,
+    meta: {
+      title: 'Upload',
     },
   },
   {

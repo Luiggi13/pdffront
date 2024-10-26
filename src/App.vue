@@ -3,41 +3,8 @@ import { RouterView } from 'vue-router';
 import { useAppStore } from './stores/appStore';
 import { ref, watch } from 'vue';
 const appStore = useAppStore();
-const showNotification = ref(appStore.isNotificationVisible);
-const hideNotification = () => {
-  useAppStore().isNotificationVisible = false;
-};
-const showNotificationWithDelay = () => {
-  setTimeout(() => {
-    hideNotification();
-  }, 2000);
-};
-
-watch(
-  () => appStore.isNotificationVisible,
-  (n: boolean) => {
-    showNotification.value = n
-    if (n) {
-      showNotificationWithDelay()
-    }
-  }
-);
 </script>
 <template>
-  <div>
-    <div v-if="showNotification && !appStore.isNotificationError"
-      :class="{ 'fade-enter-notification': showNotification && !appStore.isNotificationError }"
-      class="notification rounded-md w-[96%] flex flex-col bg-green-400 text-black text-lg p-4"
-      @click="hideNotification">
-      <span><i class="fa-solid fa-check"></i> {{ appStore.notificationMessage }}</span>
-    </div>
-    <div v-else-if="showNotification && appStore.isNotificationError"
-      :class="{ 'fade-enter-notification': showNotification && appStore.isNotificationError }"
-      class="notification rounded-md w-[96%] flex flex-col bg-red-700 text-white text-lg p-4" @click="hideNotification">
-
-      <span><i class="fa-solid fa-triangle-exclamation"></i> {{ appStore.notificationMessage }}</span>
-    </div>
-  </div>
   <RouterView />
 </template>
 <style scoped>

@@ -4,6 +4,8 @@ export const API_ROUTES = {
   places: `/places`,
   visibility: `/places/visible`,
   discarded: `/places/discarded`,
+  upload: `http://localhost:1313/pdf/upload`,
+  uploadFile: `http://localhost:1313/pdf/uploadfile`,
 };
 
 export const isFeatureFlagDev = true;
