@@ -49,11 +49,19 @@ const handleDrop = (event: DragEvent) => {
 
   if (files && files.length > 0) {
     selectedFile.value = files[0];
+    toBase64(selectedFile.value)
     console.log(selectedFile.value, "File uploaded successfully.");
     // uploadFile()
   }
 };
 
+const toBase64 = (file: File) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  }).then((e:any)=> console.log(e));
 
 const uploadFile = async () => {
   // Verificamos que haya un archivo seleccionado
@@ -70,7 +78,7 @@ const uploadFile = async () => {
         "Content-Type": "multipart/form-data",
       },
     });
-    lastLink.value = `https://pdf-gray-eta.vercel.app/ok/${response.data.size}`
+    lastLink.value = `https://gcloud-report-518624809460.europe-southwest1.run.app/ok/${response.data.size}`
     console.log(response.data.size)
 
 
