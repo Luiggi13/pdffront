@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-4 h-full justify-center items-center p-20">
+  <div class="flex flex-col gap-4 h-full justify-center items-center p-20 pnone">
     <img  class="rounded-full mb-4" src="../assets/cbre-apple.png" />
     <div v-if="!isLoading" @dragleave="() => isHover = false" @dragover="() => isHover = true"
       :class="{ 'bg-green-50': isHover }"
@@ -18,10 +18,15 @@
           <span v-if="selectedFile"
             class="bg-green-200 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300 mt-4">
             {{ selectedFile?.name }}</span>
+          <p v-if="selectedFile"
+            :class="colorSize">
+            {{ sizeFileStr }}
+            <span class="block text-center font-medium mt-1">Aumenta tu plan</span>
+          </p>
         </div>
         <input id="dropzone-file" type="file" class="hidden" ref="fileInput" />
       </label>
-      <button v-if="selectedFile && !isLoading"
+      <button v-if="!isTooBig && selectedFile && !isLoading"
         class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
         @click="uploadFile()">Upload</button>
       </div>
@@ -35,12 +40,37 @@ import { ref } from 'vue';
 import axios, { type AxiosResponse } from 'axios';
 import { API_ROUTES } from '@/config/apiRoutes';
 
-// Definimos el estado local para guardar el archivo seleccionado
 const selectedFile = ref<File | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 const isHover = ref<boolean>(false)
 const isLoading = ref<boolean>(false)
 const lastLink = ref<string>("")
+const sizeFileStr = ref<string>("")
+const isTooBig = ref<boolean>(false)
+const colorSize = ref<string>("font-light bg-yellow-200 text-black text-xs me-2 px-2.5 py-1 rounded dark:bg-yellow-900 dark:text-black mt-4")
+
+const bytesToSize = (bytes: number): void => {
+  if (bytes < 1024) {
+    sizeFileStr.value = `Tu archivo pesa: ${bytes} bytes`;
+    colorSize.value = `font-light bg-yellow-200 text-black text-xs me-2 px-2.5 py-1 rounded dark:bg-yellow-900 dark:text-black mt-4`
+    isTooBig.value = false;
+  } else if (bytes < 1024 * 1024) {
+    const kilobytes = bytes / 1024;
+    sizeFileStr.value = `Tu archivo pesa: ${kilobytes.toFixed(2)} KB`;
+    colorSize.value = `font-light bg-yellow-200 text-black text-xs me-2 px-2.5 py-1 rounded dark:bg-yellow-900 dark:text-black mt-4`
+    isTooBig.value = false;
+  } else if (bytes < 1024*1024 && (bytes < 1024*1024) || (bytes / (1024 * 1024) < 31)) {
+    const megabytes = bytes / (1024 * 1024);
+    sizeFileStr.value = `Tu archivo pesa: ${megabytes.toFixed(2)} MB`;
+    colorSize.value = `font-light bg-yellow-200 text-black text-xs me-2 px-2.5 py-1 rounded dark:bg-yellow-900 dark:text-black mt-4`
+    isTooBig.value = false;
+  } else if ((bytes < 1024*1024) || (bytes / (1024 * 1024) > 30)) {
+    const megabytes = bytes / (1024 * 1024);
+    sizeFileStr.value = `Tu archivo pesa demasiado: ${megabytes.toFixed(2)} MB`;
+    colorSize.value = `font-light bg-red-200 text-black text-xs me-2 px-2.5 py-1 rounded dark:bg-red-900 dark:text-black mt-4`
+    isTooBig.value = true;
+  }
+}
 
 // Manejamos el evento de soltar en el div
 const handleDrop = (event: DragEvent) => {
@@ -49,8 +79,8 @@ const handleDrop = (event: DragEvent) => {
 
   if (files && files.length > 0) {
     selectedFile.value = files[0];
-    toBase64(selectedFile.value)
-    console.log(selectedFile.value, "File uploaded successfully.");
+    // toBase64(selectedFile.value)
+    bytesToSize(selectedFile.value.size);
     // uploadFile()
   }
 };
@@ -79,7 +109,7 @@ const uploadFile = async () => {
       },
     });
     lastLink.value = `https://gcloud-report-518624809460.europe-southwest1.run.app/ok/${response.data.size}`
-    console.log(response.data.size)
+    // console.log(selectedFile.value, "File uploaded successfully.");
 
 
     isLoading.value = false;
@@ -93,3 +123,6 @@ const uploadFile = async () => {
   }
 };
 </script>
+<style lang="css">
+.pnone { pointer-events: none;}
+</style>
