@@ -3,7 +3,7 @@
     <img v-if="!isLoading" class="rounded-full mb-4" src="../assets/cbre-apple.png" />
     <div v-if="!isLoading" @dragleave="() => isHover = false" @dragover="() => isHover = true"
       :class="{ 'bg-green-50': isHover }"
-      class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:focus:bg-gray-800 dark:bg-gray-700 focus:bg-gray-100 dark:border-gray-600 dark:focus:border-gray-500 dark:focus:bg-gray-600"
+      class="flex flex-col items-center justify-center w-full min-h-80 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:focus:bg-gray-800 dark:bg-gray-700 focus:bg-gray-100 dark:border-gray-600 dark:focus:border-gray-500 dark:focus:bg-gray-600"
       @dragover.prevent @drop.prevent="handleDrop">
       <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-full">
         <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -21,12 +21,12 @@
           <p v-if="selectedFile"
             :class="colorSize">
             {{ sizeFileStr }}
-            <span class="block text-center font-medium mt-1">Aumenta tu plan</span>
+            <span v-if="isTooBig" class="block text-center font-medium mt-1">Aumenta tu plan</span>
           </p>
         </div>
         <input id="dropzone-file" type="file" class="hidden" ref="fileInput" />
       </label>
-      <button v-if="!isTooBig && selectedFile && !isLoading"
+      <button v-if="isTooBig && selectedFile && !isLoading"
         class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
         @click="uploadFile()">Upload</button>
       </div>
@@ -104,7 +104,7 @@ const uploadFile = async () => {
     formData.append("file", selectedFile.value);
 
     // Realizamos la solicitud POST
-    const response: AxiosResponse<{ message: string; size: string }> = await axios.post<{ message: string; size: string }>(API_ROUTES.uploadServer, formData, {
+    const response: AxiosResponse<{ message: string; size: string }> = await axios.post<{ message: string; size: string }>(API_ROUTES.upload, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
