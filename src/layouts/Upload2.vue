@@ -125,7 +125,6 @@ const uploadFile = async () => {
 };
 </script>
 <style lang="css" scoped>
-.pnone { pointer-events: none;}
 .loader {
   border-top-color: #3498db;
   -webkit-animation: spinner 1.5s linear infinite;
