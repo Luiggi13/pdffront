@@ -6,6 +6,10 @@ export const routeApp: RouteRecordRaw[] = [
     path: '/',
     component: () => import('../layouts/Upload2.vue')
   },
+  {
+    path: '/chunk',
+    component: () => import('../layouts/Chunk.vue')
+  },
 ];
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
