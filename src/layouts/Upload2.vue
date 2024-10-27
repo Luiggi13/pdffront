@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-4 h-full justify-center items-center p-20 pnone">
-    <img  class="rounded-full mb-4" src="../assets/cbre-apple.png" />
+    <img v-if="!isLoading" class="rounded-full mb-4" src="../assets/cbre-apple.png" />
     <div v-if="!isLoading" @dragleave="() => isHover = false" @dragover="() => isHover = true"
       :class="{ 'bg-green-50': isHover }"
       class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:focus:bg-gray-800 dark:bg-gray-700 focus:bg-gray-100 dark:border-gray-600 dark:focus:border-gray-500 dark:focus:bg-gray-600"
@@ -30,7 +30,7 @@
         class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
         @click="uploadFile()">Upload</button>
       </div>
-      <div v-else> Loading ... </div>
+      <Overlay :is-visible="isLoading" :text="'Subiendo archivo ...'" />
       <a v-if="lastLink.length > 0" :href="lastLink" :download="lastLink" target="_blank" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mx-auto">Descargar archivo</a>
   </div>
 </template>
@@ -39,6 +39,7 @@
 import { ref } from 'vue';
 import axios, { type AxiosResponse } from 'axios';
 import { API_ROUTES } from '@/config/apiRoutes';
+import Overlay from '@/components/atoms/Overlay/Overlay.vue';
 
 const selectedFile = ref<File | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -123,6 +124,21 @@ const uploadFile = async () => {
   }
 };
 </script>
-<style lang="css">
+<style lang="css" scoped>
 .pnone { pointer-events: none;}
+.loader {
+  border-top-color: #3498db;
+  -webkit-animation: spinner 1.5s linear infinite;
+  animation: spinner 1.5s linear infinite;
+}
+
+@-webkit-keyframes spinner {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spinner {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>

@@ -68,11 +68,10 @@ const loadingText = computed(() => props.text ?? 'Cargando...')
   height: 75px;
   display: inline-block;
   border-width: 2px;
-  border-color: rgba(255, 255, 255, 0.05);
-  border-top-color: #fff;
+  border-color: #c8c10c transparent transparent white;
   animation: spin 1s infinite linear;
   border-radius: 100%;
-  border-style: solid;
+  border-style: dashed none dashed none;
   margin-bottom: 10px;
   /* Añade espacio entre el spinner y el texto */
 }
